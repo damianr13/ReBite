@@ -2,5 +2,6 @@
     <string name="app_name">RebiteApp</string>
     <string name="facebook_app_id">230686231134935</string>
     <string name="fb_login_protocol_scheme">fb230686231134935</string>
+    <string name="profile_picture">Profile picture</string>
 
 </resources>

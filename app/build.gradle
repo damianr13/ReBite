@@ -32,4 +32,11 @@ dependencies {
     implementation 'com.facebook.android:facebook-android-sdk:4.37.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.0'
     implementation 'com.google.firebase:firebase-core:16.0.3'
+
+    // Pictures
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    // Layouts
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

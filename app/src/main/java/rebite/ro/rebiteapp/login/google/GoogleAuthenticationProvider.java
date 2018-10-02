@@ -1,4 +1,4 @@
-package rebite.ro.rebiteapp.login;
+package rebite.ro.rebiteapp.login.google;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,10 +13,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import rebite.ro.rebiteapp.R;
+import rebite.ro.rebiteapp.login.AuthenticationProvider;
+import rebite.ro.rebiteapp.login.LoginCallbacks;
+import rebite.ro.rebiteapp.login.ProfileInfoProvider;
 
 public class GoogleAuthenticationProvider extends AuthenticationProvider implements View.OnClickListener{
 
@@ -26,14 +28,11 @@ public class GoogleAuthenticationProvider extends AuthenticationProvider impleme
 
     private Activity mActivity;
     private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth mAuth;
-
 
     public GoogleAuthenticationProvider(Activity activity, LoginCallbacks loginCallbacks) {
         super(activity, loginCallbacks);
         mActivity = activity;
 
-        mAuth = FirebaseAuth.getInstance();
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -63,8 +62,13 @@ public class GoogleAuthenticationProvider extends AuthenticationProvider impleme
     }
 
     @Override
-    AuthCredential extractFirebaseCredential(Object credentialProvider) {
+    protected AuthCredential extractFirebaseCredential(Object credentialProvider) {
         GoogleSignInAccount googleAccount = (GoogleSignInAccount) credentialProvider;
         return GoogleAuthProvider.getCredential(googleAccount.getIdToken(), null);
+    }
+
+    @Override
+    protected ProfileInfoProvider buildProfileInfoProvider() {
+        return new GoogleProfileInfoProvider(mActivity.getApplicationContext());
     }
 }

@@ -4,11 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-import rebite.ro.rebiteapp.login.FacebookAuthenticationProvider;
-import rebite.ro.rebiteapp.login.GoogleAuthenticationProvider;
+import rebite.ro.rebiteapp.login.facebook.FacebookAuthenticationProvider;
+import rebite.ro.rebiteapp.login.google.GoogleAuthenticationProvider;
 import rebite.ro.rebiteapp.login.LoginCallbacks;
 
 public class MainActivity extends AppCompatActivity implements LoginCallbacks{

@@ -1,4 +1,4 @@
-package rebite.ro.rebiteapp.login;
+package rebite.ro.rebiteapp.login.facebook;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,31 +13,37 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
 
-public class FacebookAuthenticationProvider extends AuthenticationProvider{
+import rebite.ro.rebiteapp.login.AuthenticationProvider;
+import rebite.ro.rebiteapp.login.LoginCallbacks;
+import rebite.ro.rebiteapp.login.ProfileInfoProvider;
+
+public class FacebookAuthenticationProvider extends AuthenticationProvider {
 
     private static final String TAG = FacebookAuthenticationProvider.class.getName();
 
     private CallbackManager mCallbackManager;
     private Context mContext;
-    private FirebaseAuth mAuth;
 
     public FacebookAuthenticationProvider(Context context, LoginCallbacks loginCallbacks) {
         super(context, loginCallbacks);
         mContext = context;
         mCallbackManager = CallbackManager.Factory.create();
-        mAuth = FirebaseAuth.getInstance();
 
         registerLoginCallback();
     }
 
     @Override
-    AuthCredential extractFirebaseCredential(Object credentialProvider) {
+    protected AuthCredential extractFirebaseCredential(Object credentialProvider) {
         AccessToken token = (AccessToken) credentialProvider;
         Log.d(TAG, "handleFacebookAccessToken:" + token);
 
         return FacebookAuthProvider.getCredential(token.getToken());
+    }
+
+    @Override
+    protected ProfileInfoProvider buildProfileInfoProvider() {
+        return new FacebookProfileInfoProvider();
     }
 
     private void registerLoginCallback() {

@@ -26,9 +26,9 @@ public abstract class AuthenticationProvider {
         mLoginCallbacks = loginCallbacks;
     }
 
-    abstract AuthCredential extractFirebaseCredential(Object credentialProvider);
+    protected abstract AuthCredential extractFirebaseCredential(Object credentialProvider);
 
-    void handleFirebaseSignIn(Object credentialProvider) {
+    protected void handleFirebaseSignIn(Object credentialProvider) {
         AuthCredential credential = extractFirebaseCredential(credentialProvider);
 
         mAuth.signInWithCredential(credential)
@@ -47,9 +47,14 @@ public abstract class AuthenticationProvider {
                 return ;
             }
 
+            GeneralProfileInfoProvider.getInstance()
+                    .setProfileInfoProvider(buildProfileInfoProvider());
+
             // Sign in success, update UI with the signed-in user's information
             Log.d(TAG, "signInWithCredential:success");
             mLoginCallbacks.updateUI();
         }
     }
+
+    protected abstract ProfileInfoProvider buildProfileInfoProvider();
 }
