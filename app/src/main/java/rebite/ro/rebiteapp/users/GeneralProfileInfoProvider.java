@@ -1,8 +1,8 @@
-package rebite.ro.rebiteapp.login;
+package rebite.ro.rebiteapp.users;
 
 import android.net.Uri;
 
-public class GeneralProfileInfoProvider implements ProfileInfoProvider {
+public class GeneralProfileInfoProvider extends ProfileInfoProvider {
 
     private static GeneralProfileInfoProvider INSTANCE;
 
@@ -41,4 +41,14 @@ public class GeneralProfileInfoProvider implements ProfileInfoProvider {
 
         return profileInfoProvider.getDisplayName();
     }
+
+    @Override
+    public String getEmail() {
+        if (profileInfoProvider == null) {
+            return null;
+        }
+
+        return profileInfoProvider.getEmail();
+    }
+
 }

@@ -3,7 +3,6 @@ package rebite.ro.rebiteapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,8 +13,8 @@ import com.squareup.picasso.Picasso;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rebite.ro.rebiteapp.login.GeneralProfileInfoProvider;
-import rebite.ro.rebiteapp.login.ProfileInfoProvider;
+import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
+import rebite.ro.rebiteapp.users.ProfileInfoProvider;
 
 import static rebite.ro.rebiteapp.utils.PublicKeys.LAT_LNG_DESTINATION_KEY;
 

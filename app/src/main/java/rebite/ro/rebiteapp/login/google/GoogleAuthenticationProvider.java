@@ -18,9 +18,10 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import rebite.ro.rebiteapp.R;
 import rebite.ro.rebiteapp.login.AuthenticationProvider;
 import rebite.ro.rebiteapp.login.LoginCallbacks;
-import rebite.ro.rebiteapp.login.ProfileInfoProvider;
+import rebite.ro.rebiteapp.users.ProfileInfoProvider;
 
-public class GoogleAuthenticationProvider extends AuthenticationProvider implements View.OnClickListener{
+public class GoogleAuthenticationProvider extends AuthenticationProvider<GoogleSignInAccount>
+        implements View.OnClickListener{
 
     private static final String TAG = GoogleAuthenticationProvider.class.getName();
 
@@ -62,13 +63,12 @@ public class GoogleAuthenticationProvider extends AuthenticationProvider impleme
     }
 
     @Override
-    protected AuthCredential extractFirebaseCredential(Object credentialProvider) {
-        GoogleSignInAccount googleAccount = (GoogleSignInAccount) credentialProvider;
-        return GoogleAuthProvider.getCredential(googleAccount.getIdToken(), null);
+    protected AuthCredential extractFirebaseCredential(GoogleSignInAccount credentialProvider) {
+        return GoogleAuthProvider.getCredential(credentialProvider.getIdToken(), null);
     }
 
     @Override
-    protected ProfileInfoProvider buildProfileInfoProvider() {
+    protected ProfileInfoProvider buildProfileInfoProvider(GoogleSignInAccount credentialProvider) {
         return new GoogleProfileInfoProvider(mActivity.getApplicationContext());
     }
 }

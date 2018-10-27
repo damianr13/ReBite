@@ -28,16 +28,19 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     // login
-    implementation 'com.google.firebase:firebase-auth:16.0.3'
+    implementation 'com.google.firebase:firebase-auth:16.0.5'
     implementation 'com.facebook.android:facebook-android-sdk:4.37.0'
-    implementation 'com.google.android.gms:play-services-auth:16.0.0'
-    implementation 'com.google.firebase:firebase-core:16.0.3'
+    implementation 'com.google.android.gms:play-services-auth:16.0.1'
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+
+    // Storage
+    implementation 'com.google.firebase:firebase-firestore:17.1.2'
 
     // Pictures
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     // Maps & location
-    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'org.jetbrains:annotations-java5:15.0'
     implementation 'com.google.maps:google-maps-services:0.1.20'
     implementation 'org.slf4j:slf4j-simple:1.7.25'

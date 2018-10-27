@@ -3,24 +3,40 @@ package rebite.ro.rebiteapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
+import android.widget.Toast;
 
+import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.common.SignInButton;
+import com.google.maps.PendingResult;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import rebite.ro.rebiteapp.login.facebook.FacebookAuthenticationProvider;
 import rebite.ro.rebiteapp.login.google.GoogleAuthenticationProvider;
 import rebite.ro.rebiteapp.login.LoginCallbacks;
+import rebite.ro.rebiteapp.persistence.PersistenceManager;
+import rebite.ro.rebiteapp.users.UserInfo;
 
 public class MainActivity extends AppCompatActivity implements LoginCallbacks{
 
     private FacebookAuthenticationProvider mFacebookAuthProvider;
     private GoogleAuthenticationProvider mGoogleAuthProvider;
 
+    @BindView(R.id.btn_facebook_login) LoginButton mFacebookLoginButton;
+    @BindView(R.id.btn_google_login) SignInButton mGoogleLoginButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         mFacebookAuthProvider = new FacebookAuthenticationProvider(this, this);
+        mFacebookLoginButton.setReadPermissions(FacebookAuthenticationProvider.EMAIL_KEY);
+
         mGoogleAuthProvider = new GoogleAuthenticationProvider(this, this);
-        findViewById(R.id.sign_in_button).setOnClickListener(mGoogleAuthProvider);
+        mGoogleLoginButton.setOnClickListener(mGoogleAuthProvider);
     }
 
     @Override
@@ -33,8 +49,33 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
     }
 
     @Override
-    public void updateUI() {
+    public void onSignInComplete() {
         Intent profileActivityIntent = new Intent(this, ProfileActivity.class);
         startActivity(profileActivityIntent);
+
+        PersistenceManager.getInstance().synchronizeUser(this);
+        PersistenceManager.getInstance().retrieveExtraUserInfo(
+                new PendingResult.Callback<UserInfo>() {
+                    @Override
+                    public void onResult(UserInfo result) {
+                        // no extra info about this user
+                        if (result == null) {
+                            return ;
+                        }
+
+                        boolean isAdmin = result.getCurrentUserRoles().contains(UserInfo.Role.ADMIN);
+                        if (!isAdmin) {
+                            return ;
+                        }
+
+                        Toast.makeText(MainActivity.this,
+                                "Has admin rights!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable e) {
+
+                    }
+                });
     }
 }

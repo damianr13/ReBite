@@ -12,7 +12,10 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public abstract class AuthenticationProvider {
+import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
+import rebite.ro.rebiteapp.users.ProfileInfoProvider;
+
+public abstract class AuthenticationProvider<T> {
 
     private static final String TAG = AuthenticationProvider.class.getName();
 
@@ -26,16 +29,23 @@ public abstract class AuthenticationProvider {
         mLoginCallbacks = loginCallbacks;
     }
 
-    protected abstract AuthCredential extractFirebaseCredential(Object credentialProvider);
+    protected abstract AuthCredential extractFirebaseCredential(T credentialProvider);
 
-    protected void handleFirebaseSignIn(Object credentialProvider) {
+    protected void handleFirebaseSignIn(T credentialProvider) {
         AuthCredential credential = extractFirebaseCredential(credentialProvider);
 
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener((Activity) mContext, new SignInCompleteListener());
+                .addOnCompleteListener((Activity) mContext,
+                        new SignInCompleteListener(credentialProvider));
     }
 
     private class SignInCompleteListener implements OnCompleteListener<AuthResult> {
+
+        private T mCredentialProvider;
+
+        SignInCompleteListener(T credentialProvider) {
+            mCredentialProvider = credentialProvider;
+        }
 
         @Override
         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -48,13 +58,13 @@ public abstract class AuthenticationProvider {
             }
 
             GeneralProfileInfoProvider.getInstance()
-                    .setProfileInfoProvider(buildProfileInfoProvider());
+                    .setProfileInfoProvider(buildProfileInfoProvider(mCredentialProvider));
 
             // Sign in success, update UI with the signed-in user's information
             Log.d(TAG, "signInWithCredential:success");
-            mLoginCallbacks.updateUI();
+            mLoginCallbacks.onSignInComplete();
         }
     }
 
-    protected abstract ProfileInfoProvider buildProfileInfoProvider();
+    protected abstract ProfileInfoProvider buildProfileInfoProvider(T credentialProvider);
 }

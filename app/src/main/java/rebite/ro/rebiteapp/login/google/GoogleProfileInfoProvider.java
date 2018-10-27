@@ -8,9 +8,9 @@ import android.text.TextUtils;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-import rebite.ro.rebiteapp.login.ProfileInfoProvider;
+import rebite.ro.rebiteapp.users.ProfileInfoProvider;
 
-class GoogleProfileInfoProvider implements ProfileInfoProvider {
+class GoogleProfileInfoProvider extends ProfileInfoProvider {
 
     private GoogleSignInAccount googleAccount;
 
@@ -31,6 +31,11 @@ class GoogleProfileInfoProvider implements ProfileInfoProvider {
     @Override
     public String getDisplayName() {
         return googleAccount.getDisplayName();
+    }
+
+    @Override
+    public String getEmail() {
+        return googleAccount.getEmail();
     }
 
     private Uri getHigherResolutionImageUri(@NonNull Uri uri) {
