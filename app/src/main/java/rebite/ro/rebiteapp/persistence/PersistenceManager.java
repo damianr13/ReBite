@@ -10,6 +10,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.PendingResult;
@@ -22,6 +23,7 @@ import rebite.ro.rebiteapp.offers.RestaurantOffer;
 import rebite.ro.rebiteapp.persistence.callbacks.RestaurantOffersRetrieverCallbacks;
 import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
 import rebite.ro.rebiteapp.users.UserInfo;
+import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
 
 public class PersistenceManager {
 
@@ -117,27 +119,35 @@ public class PersistenceManager {
     }
 
     public void retrieveAllAvailableOffers(final RestaurantOffersRetrieverCallbacks callbacks) {
-        FirebaseFirestore.getInstance()
+        Query q = FirebaseFirestore.getInstance()
                 .collection(OFFERS_COLLECTION)
-                .whereGreaterThan(RestaurantOffer.PICK_UP_TIME_FIELD, Calendar.getInstance().getTimeInMillis())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (!verifyTaskCompletition(task)) {
-                            return ;
-                        }
-                        if (task.getResult() == null) {
-                            return ;
-                        }
+                .whereGreaterThan(RestaurantOffer.PICK_UP_TIME_FIELD, Calendar.getInstance().getTimeInMillis());
+        retrieveOffers(q, callbacks);
+    }
 
-                        List<RestaurantOffer> result = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            result.add(document.toObject(RestaurantOffer.class));
-                        }
+    public void retrieveAllOffersByRestaurant(RestaurantInfo restaurantInfo,
+                                              final RestaurantOffersRetrieverCallbacks callbacks) {
+        Query q = FirebaseFirestore.getInstance()
+                .collection(OFFERS_COLLECTION)
+                .whereEqualTo(RestaurantOffer.RESTAURANT_INFO_FIELD, restaurantInfo);
+        retrieveOffers(q, callbacks);
+    }
 
-                        callbacks.onRestaurantOffersRetrieved(result);
+    private void retrieveOffers(Query query, final RestaurantOffersRetrieverCallbacks callbacks) {
+        query.get().addOnCompleteListener(task -> {
+                    if (!verifyTaskCompletition(task)) {
+                        return ;
                     }
+                    if (task.getResult() == null) {
+                        return ;
+                    }
+
+                    List<RestaurantOffer> result = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        result.add(document.toObject(RestaurantOffer.class));
+                    }
+
+                    callbacks.onRestaurantOffersRetrieved(result);
                 });
     }
 
