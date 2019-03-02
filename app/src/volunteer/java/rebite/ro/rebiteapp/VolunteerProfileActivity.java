@@ -35,12 +35,9 @@ public class VolunteerProfileActivity extends AppCompatActivity
 
     private static final String TAG = VolunteerProfileActivity.class.getName();
 
-    @Nullable @BindView(R.id.iv_profile_picture) ImageView profileImageView;
-    @Nullable @BindView(R.id.tv_display_name) TextView displayNameTextView;
-    @Nullable @BindView(R.id.rv_restaurant_offers) RecyclerView restaurantOffersRecyclerView;
-
-    @Nullable @BindView(R.id.tv_name) TextView restaurantNameTextView;
-    @Nullable @BindView(R.id.tv_address) TextView addressTextView;
+    @Nullable @BindView(R.id.iv_profile_picture) ImageView mProfileImageView;
+    @Nullable @BindView(R.id.tv_display_name) TextView mDisplayNameTextView;
+    @Nullable @BindView(R.id.rv_restaurant_offers) RecyclerView mRestaurantOffersRecyclerView;
 
     private RestaurantOfferAdapter mAdapter;
 
@@ -53,33 +50,17 @@ public class VolunteerProfileActivity extends AppCompatActivity
 
         ProfileInfoProvider profileInfoProvider = GeneralProfileInfoProvider.getInstance();
 
-        boolean isVolunteerApp = profileImageView != null && displayNameTextView != null &&
-                restaurantOffersRecyclerView != null;
-        if (isVolunteerApp) {
-            Picasso.get()
-                    .load(profileInfoProvider.getProfilePictureUri())
-                    .into(profileImageView);
-            displayNameTextView.setText(profileInfoProvider.getDisplayName());
+        Picasso.get()
+                .load(profileInfoProvider.getProfilePictureUri())
+                .into(mProfileImageView);
+        mDisplayNameTextView.setText(profileInfoProvider.getDisplayName());
 
-            restaurantOffersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRestaurantOffersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-            mAdapter = new RestaurantOfferAdapter(this);
-            restaurantOffersRecyclerView.setAdapter(mAdapter);
+        mAdapter = new RestaurantOfferAdapter(this);
+        mRestaurantOffersRecyclerView.setAdapter(mAdapter);
 
-            PersistenceManager.getInstance().retrieveAllAvailableOffers(this);
-        }
-
-        boolean isRestaurantApp = restaurantNameTextView != null &&
-                addressTextView != null;
-
-        if (isRestaurantApp) {
-            restaurantNameTextView.setText(
-                    StateManager.getInstance().getRestaurantInfo().name
-            );
-            addressTextView.setText(
-                    StateManager.getInstance().getRestaurantInfo().address
-            );
-        }
+        PersistenceManager.getInstance().retrieveAllAvailableOffers(this);
     }
 
     @Optional
