@@ -4,4 +4,14 @@
     <string name="fb_login_protocol_scheme">fb230686231134935</string>
     <string name="profile_picture">Profile picture</string>
     <string name="google_maps_key">AIzaSyAMHnNSE-hp0VenjCvzEBQUfSFSlkMsNw8</string>
+    <string name="permission_not_granted">You do not have permission to access this feature!</string>
+    <string name="add_new_offer">Add new offer</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="create">Create</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="password_mismatch">Password and confirmation did not match</string>
+    <string name="login">Log In</string>
+    <string name="pickup_time">Pickup time</string>
+    <string name="quantity">Quantity</string>
 </resources>

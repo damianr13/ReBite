@@ -9,13 +9,17 @@ import com.google.firebase.firestore.PropertyName;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
+
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class UserInfo {
 
     private static final String TAG = UserInfo.class.getName();
 
     public enum Role {
-        ADMIN
+        ADMIN, RESTAURANT
     }
 
     @PropertyName("roles")
@@ -26,6 +30,9 @@ public class UserInfo {
 
     @PropertyName("email")
     public String email;
+
+    @Nullable @PropertyName("restaurant_info")
+    public RestaurantInfo restaurantInfo;
 
     public UserInfo() {
         this(null, null);

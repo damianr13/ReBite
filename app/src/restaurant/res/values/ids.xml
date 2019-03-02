@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="iv_profile_picture" type="id" />
+    <item name="tv_display_name" type="id" />
+    <item name="btn_dummy_maps" type="id" />
+    <item name="btn_add_restaurant_profile" type="id" />
+
+    <item name="btn_facebook_login" type="id"/>
+    <item name="btn_google_login" type="id"/>
+</resources>
