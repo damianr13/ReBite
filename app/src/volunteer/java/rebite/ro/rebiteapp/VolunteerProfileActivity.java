@@ -14,7 +14,6 @@ import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Picasso;
 
-import java.util.Collection;
 import java.util.List;
 
 import butterknife.BindView;
@@ -31,10 +30,10 @@ import rebite.ro.rebiteapp.users.ProfileInfoProvider;
 
 import static rebite.ro.rebiteapp.utils.PublicKeys.LAT_LNG_DESTINATION_KEY;
 
-public class ProfileActivity extends AppCompatActivity
+public class VolunteerProfileActivity extends AppCompatActivity
         implements RestaurantOffersRetrieverCallbacks{
 
-    private static final String TAG = ProfileActivity.class.getName();
+    private static final String TAG = VolunteerProfileActivity.class.getName();
 
     @Nullable @BindView(R.id.iv_profile_picture) ImageView profileImageView;
     @Nullable @BindView(R.id.tv_display_name) TextView displayNameTextView;

@@ -44,7 +44,6 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name=".ProfileActivity" />
         <activity android:name=".MapsActivity" />
         <activity android:name=".RestaurantProfileCreatorActivity" />
         <activity android:name=".OfferCreatorActivity" />

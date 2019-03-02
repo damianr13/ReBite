@@ -4,9 +4,9 @@
 
     <application
             android:theme="@style/AppTheme"
-            android:name=".dagger.RestaurantApplication">
+            android:name=".dagger.VolunteerApplication">
         <activity android:name=".OfferCreatorActivity" />
-        <activity android:name=".RestaurantProfileActivity"/>
+        <activity android:name=".VolunteerProfileActivity"/>
     </application>
 
 </manifest>
