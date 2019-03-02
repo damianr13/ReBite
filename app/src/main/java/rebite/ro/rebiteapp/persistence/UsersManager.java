@@ -38,22 +38,17 @@ public class UsersManager {
     public void createNewUser(final Context context, String username, String password) {
         final FirebaseAuth auth = generateFirebaseInstance(context);
         auth.createUserWithEmailAndPassword(username, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            Toast.makeText(context, "User successfully created",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(context, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        // ...
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "createUserWithEmail:success");
+                        Toast.makeText(context, "User successfully created",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                        Toast.makeText(context, "Could not create user",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -64,7 +59,8 @@ public class UsersManager {
                 .setApiKey("AIzaSyAMHnNSE-hp0VenjCvzEBQUfSFSlkMsNw8")
                 .setApplicationId("rebite-1538289789438").build();
 
-        try { FirebaseApp myApp = FirebaseApp.initializeApp(context, firebaseOptions, "AnyAppName");
+        try {
+            FirebaseApp myApp = FirebaseApp.initializeApp(context, firebaseOptions, "AnyAppName");
             return FirebaseAuth.getInstance(myApp);
         } catch (IllegalStateException e){
             return FirebaseAuth.getInstance(FirebaseApp.getInstance("AnyAppName"));

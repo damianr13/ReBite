@@ -50,6 +50,7 @@ public abstract class AuthenticationProvider<T> {
         @Override
         public void onComplete(@NonNull Task<AuthResult> task) {
             if (!task.isSuccessful()) {
+                mLoginCallbacks.onSignInFailed();
                 Log.w(TAG, "signInWithCredential:failure", task.getException());
                 Toast.makeText(mContext, "Authentication failed.",
                         Toast.LENGTH_SHORT).show();

@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.internal.Preconditions;
+import com.google.firestore.v1.Precondition;
 import com.google.maps.PendingResult;
 
 import javax.inject.Inject;
@@ -41,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
 
     @Nullable @BindView(R.id.et_username) EditText mUsernameEditText;
     @Nullable @BindView(R.id.et_password) EditText mPasswordEditText;
+    @Nullable @BindView(R.id.btn_email_login) Button mButton;
+    @Nullable @BindView(R.id.rl_loader) View mLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +79,28 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
         return BuildConfig.FLAVOR.equals("volunteer");
     }
 
+    private void allowInput() {
+        if (mLoader != null) {
+            mLoader.setClickable(false);
+            mLoader.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void blockInput() {
+        if (mLoader != null) {
+            mLoader.setVisibility(View.VISIBLE);
+            mLoader.setClickable(true);
+        }
+    }
+
+    @Override
+    public void onSignInFailed() {
+        allowInput();
+    }
+
     @Override
     public void onSignInComplete() {
+        allowInput();
         final Intent startProfileActivityIntent = mActivityFactory
                 .getIntentForProfileActivity(this);
 
@@ -116,6 +141,13 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
         String username = mUsernameEditText.getText().toString();
         String password = mPasswordEditText.getText().toString();
 
+        if ("".equals(username) || "".equals(password)) {
+            Toast.makeText(this, R.string.credentials_expected,
+                    Toast.LENGTH_SHORT).show();
+            return ;
+        }
+
+        this.runOnUiThread(this::blockInput);
         new EmailAuthenticationProvider(this, this)
                 .loginUserWithCredentials(username, password);
     }
