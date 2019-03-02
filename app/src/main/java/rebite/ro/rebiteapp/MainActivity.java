@@ -3,6 +3,7 @@ package rebite.ro.rebiteapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.internal.Preconditions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firestore.v1.Precondition;
 import com.google.maps.PendingResult;
 
@@ -64,6 +66,11 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
             mGoogleAuthProvider = new GoogleAuthenticationProvider(this, this);
             mGoogleLoginButton.setOnClickListener(mGoogleAuthProvider);
         }
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            blockInput();
+            onSignInComplete();
+        }
     }
 
     @Override
@@ -100,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
 
     @Override
     public void onSignInComplete() {
-        allowInput();
         final Intent startProfileActivityIntent = mActivityFactory
                 .getIntentForProfileActivity(this);
 
@@ -116,6 +122,8 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
 
                         StateManager.getInstance().setExtraUserInfo(result);
 
+                        runOnUiThread(MainActivity.this::allowInput);
+                        ActivityCompat.finishAffinity(MainActivity.this);
                         startActivity(startProfileActivityIntent);
 
                         boolean isAdmin = result.getCurrentUserRoles().contains(UserInfo.Role.ADMIN);
