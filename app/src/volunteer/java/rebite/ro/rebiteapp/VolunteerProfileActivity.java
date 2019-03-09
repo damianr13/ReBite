@@ -85,14 +85,6 @@ public class VolunteerProfileActivity extends AppCompatActivity
         startActivity(restaurantProfileCreatorActivityIntent);
     }
 
-    @Optional
-    @OnClick(R.id.btn_new_offer)
-    public void launchPostOfferActivity(View v) {
-        Intent offerCreatorActivity = new Intent(this,
-                OfferCreatorActivity.class);
-        startActivity(offerCreatorActivity);
-    }
-
     private static LatLng provideMockLatLng() {
         return new LatLng(46.225710, 27.670130);
     }
