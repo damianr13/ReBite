@@ -2,6 +2,9 @@ package rebite.ro.rebiteapp.users.restaurants;
 
 import com.google.firebase.firestore.PropertyName;
 
+import org.parceler.Parcel;
+
+@Parcel
 public class RestaurantInfo {
 
     @PropertyName("address")

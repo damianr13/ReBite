@@ -1,5 +1,6 @@
 package rebite.ro.rebiteapp;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import org.parceler.Parcels;
 
 import java.util.Calendar;
 
@@ -21,8 +24,11 @@ import rebite.ro.rebiteapp.state.StateManager;
 public class OfferCreatorActivity extends AppCompatActivity {
     private static final String TAG = OfferCreatorActivity.class.getName();
 
+    public static final String OFFER_RESULT = "result";
+
     @BindView(R.id.tp_pickup_time) TimePicker mPickupTimeTimePicker;
     @BindView(R.id.et_quantity) EditText mQuantityEditText;
+    @BindView(R.id.et_description) EditText mDescriptionEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +55,12 @@ public class OfferCreatorActivity extends AppCompatActivity {
                 .setQuantity(quantity)
                 .setRestaurantInfo(StateManager.getInstance().getRestaurantInfo())
                 .setPickUpTime(pickupTimeCalendar.getTimeInMillis())
+                .setDescription(mDescriptionEditText.getText().toString())
                 .build();
-        PersistenceManager.getInstance().persistOfferToGlobalDatabase(this, offer);
-
-        onBackPressed();
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(OFFER_RESULT, Parcels.wrap(offer));
+        setResult(RESULT_OK, returnIntent);
+        finish();
     }
 
     private Calendar getSelectedTime() {

@@ -12,7 +12,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.parceler.Parcels;
+
+import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,6 +30,8 @@ import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
 
 public class RestaurantProfileActivity extends AppCompatActivity
         implements RestaurantOffersRetrieverCallbacks{
+
+    private static final int CREATE_OFFER_REQUEST = 100;
 
     @BindView(R.id.iv_logo) ImageView mLogoImageView;
     @BindView(R.id.tv_restaurant_name) TextView mNameTextView;
@@ -67,6 +73,22 @@ public class RestaurantProfileActivity extends AppCompatActivity
     public void launchPostOfferActivity(View v) {
         Intent offerCreatorActivity = new Intent(this,
                 OfferCreatorActivity.class);
-        startActivity(offerCreatorActivity);
+        startActivityForResult(offerCreatorActivity, CREATE_OFFER_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK) {
+            return ;
+        }
+
+        if (requestCode == CREATE_OFFER_REQUEST) {
+            RestaurantOffer offer =
+                    Parcels.unwrap(data.getParcelableExtra(OfferCreatorActivity.OFFER_RESULT));
+
+            PersistenceManager.getInstance().persistOfferToGlobalDatabase(this, offer);
+        }
     }
 }
