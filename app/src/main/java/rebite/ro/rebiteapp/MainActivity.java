@@ -12,9 +12,7 @@ import android.widget.Toast;
 
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.internal.Preconditions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firestore.v1.Precondition;
 import com.google.maps.PendingResult;
 
 import javax.inject.Inject;
@@ -25,12 +23,15 @@ import butterknife.OnClick;
 import butterknife.Optional;
 import rebite.ro.rebiteapp.dagger.AbstractMainApplication;
 import rebite.ro.rebiteapp.dagger.FlavorSpecificActivityFactory;
+import rebite.ro.rebiteapp.login.LoginCallbacks;
+import rebite.ro.rebiteapp.login.cache.CacheProfileInfoManager;
 import rebite.ro.rebiteapp.login.email.EmailAuthenticationProvider;
 import rebite.ro.rebiteapp.login.facebook.FacebookAuthenticationProvider;
 import rebite.ro.rebiteapp.login.google.GoogleAuthenticationProvider;
-import rebite.ro.rebiteapp.login.LoginCallbacks;
 import rebite.ro.rebiteapp.persistence.PersistenceManager;
 import rebite.ro.rebiteapp.state.StateManager;
+import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
+import rebite.ro.rebiteapp.users.ProfileInfoProvider;
 import rebite.ro.rebiteapp.users.UserInfo;
 
 public class MainActivity extends AppCompatActivity implements LoginCallbacks{
@@ -69,6 +70,13 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             blockInput();
+            ProfileInfoProvider profileInfoProvider = new CacheProfileInfoManager(this)
+                    .retrieveCachedProfileInfoProvider();
+            if (profileInfoProvider == null) {
+                allowInput();
+                return ;
+            }
+            GeneralProfileInfoProvider.getInstance().setProfileInfoProvider(profileInfoProvider);
             onSignInComplete();
         }
     }
@@ -110,7 +118,10 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
         final Intent startProfileActivityIntent = mActivityFactory
                 .getIntentForProfileActivity(this);
 
+        new CacheProfileInfoManager(this).cacheProfileInfoProvider(
+                GeneralProfileInfoProvider.getInstance());
         PersistenceManager.getInstance().synchronizeCurrentUser(this);
+
         PersistenceManager.getInstance().retrieveExtraUserInfo(
                 new PendingResult.Callback<UserInfo>() {
                     @Override
