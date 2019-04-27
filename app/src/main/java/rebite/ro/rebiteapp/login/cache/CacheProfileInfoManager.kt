@@ -30,13 +30,9 @@ class CacheProfileInfoManager(context: Context) {
             val email = it.getString(EMAIL_KEY, null)
             val profilePictureURL = it.getString(PROFILE_PICTURE_URL_KEY, null)
 
-            displayName?.let {
-                email?.let {
-                    profilePictureURL?.let {
-                        true
-                    }
-                }
-            } ?: return null
+            displayName?: return null
+            email?: return null
+            profilePictureURL?: return null
 
             CacheProfileInfoProvider(displayName, email, profilePictureURL)
         }

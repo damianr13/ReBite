@@ -2,10 +2,10 @@ package rebite.ro.rebiteapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,7 +24,6 @@ import rebite.ro.rebiteapp.adapters.RestaurantOfferAdapter;
 import rebite.ro.rebiteapp.offers.RestaurantOffer;
 import rebite.ro.rebiteapp.persistence.PersistenceManager;
 import rebite.ro.rebiteapp.persistence.callbacks.RestaurantOffersRetrieverCallbacks;
-import rebite.ro.rebiteapp.state.StateManager;
 import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
 import rebite.ro.rebiteapp.users.ProfileInfoProvider;
 
@@ -35,9 +34,9 @@ public class VolunteerProfileActivity extends AppCompatActivity
 
     private static final String TAG = VolunteerProfileActivity.class.getName();
 
-    @Nullable @BindView(R.id.iv_profile_picture) ImageView mProfileImageView;
-    @Nullable @BindView(R.id.tv_display_name) TextView mDisplayNameTextView;
-    @Nullable @BindView(R.id.rv_restaurant_offers) RecyclerView mRestaurantOffersRecyclerView;
+    @BindView(R.id.iv_profile_picture) ImageView mProfileImageView;
+    @BindView(R.id.tv_display_name) TextView mDisplayNameTextView;
+    @BindView(R.id.rv_restaurant_offers) RecyclerView mRestaurantOffersRecyclerView;
 
     private RestaurantOfferAdapter mAdapter;
 
@@ -91,6 +90,7 @@ public class VolunteerProfileActivity extends AppCompatActivity
 
     @Override
     public void onRestaurantOffersRetrieved(List<RestaurantOffer> result) {
+        Log.i(TAG, "Received " + result.size() + " offers");
         mAdapter.swapRestaurantOffers(result);
     }
 }

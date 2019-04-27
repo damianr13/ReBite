@@ -4,6 +4,5 @@ public class VolunteerApplication extends AbstractMainApplication {
     @Override
     protected FlavorSpecificComponent createFlavorSpecificComponent() {
         return DaggerVolunteerComponent.create();
-//        return null;
     }
 }

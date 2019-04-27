@@ -15,7 +15,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApi;
 import com.google.maps.GeoApiContext;
-import com.google.maps.PendingResult;
 import com.google.maps.PendingResult.Callback;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.TravelMode;
@@ -84,9 +83,13 @@ public class GoogleMapController implements LocationListener, Callback<Direction
 
     }
 
-    private void animateMapTo(Location location) {
+    public void animateMapTo(Location location) {
         LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
         animateMapTo(center);
+    }
+
+    public void animateMapToCurrentLocation() {
+        animateMapTo(getCurrentLocation());
     }
 
     private void animateMapTo(LatLng currentPosition) {
@@ -149,17 +152,26 @@ public class GoogleMapController implements LocationListener, Callback<Direction
             if (l == null) {
                 continue;
             }
-            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+            if (bestLocation == null || l.getAccuracy() > bestLocation.getAccuracy()) {
                 bestLocation = l;
             }
         }
         return bestLocation;
     }
 
+    private Location getCurrentLocation() {
+        LocationManager locationManager = (LocationManager) mActivity
+                .getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager == null) {
+            return null;
+        }
+        return getCurrentLocation(locationManager);
+    }
+
     @Override
     public void onResult(DirectionsResult result) {
         List<LatLng> decodedPath = convertLatLng(result.routes[0].overviewPolyline.decodePath());
-        mGoogleMap.addPolyline(new PolylineOptions().addAll(decodedPath));
+        mActivity.runOnUiThread(() -> mGoogleMap.addPolyline(new PolylineOptions().addAll(decodedPath)));
     }
 
     @Override

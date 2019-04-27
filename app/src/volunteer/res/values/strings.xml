@@ -1,0 +1,3 @@
+<resources>
+    <string name="invalid_lat_long_used">Invalid location provided</string>
+</resources>
