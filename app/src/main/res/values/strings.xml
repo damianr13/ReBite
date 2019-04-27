@@ -18,4 +18,6 @@
     <string name="restaurant_logo_description">Suggestive photo of the restaurant</string>
     <string name="expired">Expired</string>
     <string name="short_description">Short description</string>
+    <string name="available_offers">Available offers</string>
+    <string name="expired_offers">Expired offers</string>
 </resources>

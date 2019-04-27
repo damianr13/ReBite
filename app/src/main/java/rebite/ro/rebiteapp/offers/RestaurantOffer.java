@@ -9,10 +9,16 @@ import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
 
 @Parcel
 public class RestaurantOffer  {
+
+    public enum OfferState {
+        AVAILABLE, EXPIRED, IN_PROGRESS, FINISHED
+    }
+
     @Exclude public static final String RESTAURANT_INFO_FIELD = "restaurant_info";
     @Exclude public static final String PICK_UP_TIME_FIELD = "pick_up_time";
     @Exclude public static final String QUANTITY_FIELD = "quantity";
-    @Exclude public static final String DESCRIPTION_FILED = "description";
+    @Exclude public static final String DESCRIPTION_FIELD = "description";
+    @Exclude public static final String STATE_FIELD = "state";
 
     @PropertyName(RESTAURANT_INFO_FIELD)
     public RestaurantInfo restaurantInfo;
@@ -23,8 +29,11 @@ public class RestaurantOffer  {
     @PropertyName(QUANTITY_FIELD)
     public int quantity;
 
-    @PropertyName(DESCRIPTION_FILED)
+    @PropertyName(DESCRIPTION_FIELD)
     public String description;
+
+    @PropertyName(STATE_FIELD)
+    public OfferState state = OfferState.AVAILABLE; //default value
 
     public static class Builder {
         private RestaurantOffer result;
@@ -50,6 +59,11 @@ public class RestaurantOffer  {
 
         public Builder setDescription(String description) {
             result.description = description;
+            return this;
+        }
+
+        public Builder setState(OfferState state) {
+            result.state = state;
             return this;
         }
 
