@@ -1,6 +1,7 @@
 package rebite.ro.rebiteapp;
 
 import android.annotation.SuppressLint;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -51,7 +52,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMapController = new GoogleMapController(this, googleMap);
         mMapController.startListeningForLocation();
 
+        Location knownLocation = mMapController.getLastKnownLocation();
         mGoogleMap.addMarker(new MarkerOptions().position(mDestinationLatLng));
+        mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(knownLocation.getLatitude(),
+                knownLocation.getLongitude())));
         mMapController.showDirectionsTo(mDestinationLatLng);
     }
 }

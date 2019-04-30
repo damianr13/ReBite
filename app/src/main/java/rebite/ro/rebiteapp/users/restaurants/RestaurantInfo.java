@@ -1,10 +1,12 @@
 package rebite.ro.rebiteapp.users.restaurants;
 
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.PropertyName;
+
+import org.parceler.Parcel;
 
 import java.util.Objects;
 
+@Parcel
 public class RestaurantInfo {
 
     @PropertyName("address")

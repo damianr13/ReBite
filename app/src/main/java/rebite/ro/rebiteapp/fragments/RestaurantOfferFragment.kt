@@ -1,5 +1,6 @@
 package rebite.ro.rebiteapp.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.app.Fragment
@@ -9,11 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_restaurantoffer.view.*
 import org.parceler.Parcels
+import rebite.ro.rebiteapp.OfferDetailsActivity
+import rebite.ro.rebiteapp.OfferDetailsActivity.Companion.OFFER_KEY
 import rebite.ro.rebiteapp.R
 import rebite.ro.rebiteapp.adapters.RestaurantOfferAdapter
 import rebite.ro.rebiteapp.offers.RestaurantOffer
 
-class RestaurantOfferFragment : Fragment() {
+class RestaurantOfferFragment : Fragment(), RestaurantOfferAdapter.IOfferClickListener {
     private lateinit var mRestaurantOfferAdapter : RestaurantOfferAdapter
     private var mRestaurantOfferList : List<RestaurantOffer>? = null
 
@@ -29,7 +32,7 @@ class RestaurantOfferFragment : Fragment() {
         mRestaurantOfferList = arguments?.getParcelableArrayList<Parcelable>(OFFERS_KEY)
                 ?.map { Parcels.unwrap(it) as RestaurantOffer}
 
-        mRestaurantOfferAdapter = RestaurantOfferAdapter(context)
+        mRestaurantOfferAdapter = RestaurantOfferAdapter(context, this)
         mRestaurantOfferAdapter.swapRestaurantOffers(mRestaurantOfferList)
         val llm = LinearLayoutManager(context)
         view.rv_past_offers.apply {
@@ -42,6 +45,12 @@ class RestaurantOfferFragment : Fragment() {
 
     fun swapRestaurantOffersList(restaurantOffersList: List<RestaurantOffer>) {
         mRestaurantOfferAdapter.swapRestaurantOffers(restaurantOffersList)
+    }
+
+    override fun onOfferSelected(offer: RestaurantOffer) {
+        val offerDetailsIntent = Intent(context, OfferDetailsActivity::class.java)
+        offerDetailsIntent.putExtra(OFFER_KEY, Parcels.wrap(offer))
+        startActivity(offerDetailsIntent)
     }
 
     companion object {

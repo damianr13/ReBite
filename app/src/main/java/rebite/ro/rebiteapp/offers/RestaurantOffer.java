@@ -22,7 +22,7 @@ public class RestaurantOffer  {
     @Exclude public static final String STATE_FIELD = "state";
 
     @PropertyName(RESTAURANT_INFO_FIELD)
-    @Transient public RestaurantInfo restaurantInfo;
+    public RestaurantInfo restaurantInfo;
 
     @PropertyName(PICK_UP_TIME_FIELD)
     public long pickUpTimestamp;

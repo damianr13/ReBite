@@ -7,6 +7,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -144,7 +145,7 @@ public class GoogleMapController implements LocationListener, Callback<Direction
      * @return current location of the device
      */
     @SuppressLint("MissingPermission")
-    private Location getCurrentLocation(LocationManager locationManager) {
+    private Location getCurrentLocation(@NonNull LocationManager locationManager) {
         List<String> providers = locationManager.getProviders(true);
         Location bestLocation = null;
         for (String provider : providers) {
@@ -152,7 +153,7 @@ public class GoogleMapController implements LocationListener, Callback<Direction
             if (l == null) {
                 continue;
             }
-            if (bestLocation == null || l.getAccuracy() > bestLocation.getAccuracy()) {
+            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
                 bestLocation = l;
             }
         }
@@ -177,5 +178,9 @@ public class GoogleMapController implements LocationListener, Callback<Direction
     @Override
     public void onFailure(Throwable e) {
         Log.e(TAG, "Unable to fetch directions", e);
+    }
+
+    public Location getLastKnownLocation() {
+        return mLastKnownLocation;
     }
 }

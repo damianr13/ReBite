@@ -27,9 +27,11 @@ public class RestaurantOfferAdapter extends
 
     private List<RestaurantOffer> mRestaurantOfferList;
     private Context mContext;
+    private IOfferClickListener mOfferClickListener;
 
-    public RestaurantOfferAdapter(Context context) {
+    public RestaurantOfferAdapter(Context context, IOfferClickListener offerClickListener) {
         mContext = context;
+        mOfferClickListener = offerClickListener;
     }
 
     public void swapRestaurantOffers(List<RestaurantOffer> offers) {
@@ -49,21 +51,7 @@ public class RestaurantOfferAdapter extends
     @Override
     public void onBindViewHolder(@NonNull RestaurantOfferViewHolder holder, int position) {
         RestaurantOffer offer = mRestaurantOfferList.get(position);
-
-        holder.addressTextView.setText(offer.restaurantInfo.address);
-        holder.nameTextView.setText(offer.restaurantInfo.name);
-        holder.quantityTextView.setText(String.valueOf(offer.quantity));
-        Picasso.get().load(offer.restaurantInfo.image).into(holder.logoImageView);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.getDefault());
-        Calendar pickUpTimeCalendar = Calendar.getInstance();
-        pickUpTimeCalendar.setTimeInMillis(offer.pickUpTimestamp);
-        if (pickUpTimeCalendar.before(Calendar.getInstance())) {
-            holder.statusTextView.setText(R.string.expired);
-            holder.statusTextView.setBackgroundColor(Color.RED);
-        }
-
-        holder.pickUpTimeTextView.setText(sdf.format(pickUpTimeCalendar.getTime()));
+        holder.bindTo(offer);
     }
 
     @Override
@@ -75,7 +63,11 @@ public class RestaurantOfferAdapter extends
         return mRestaurantOfferList.size();
     }
 
-    class RestaurantOfferViewHolder extends RecyclerView.ViewHolder {
+    public interface IOfferClickListener {
+        void onOfferSelected(RestaurantOffer offer);
+    }
+
+    class RestaurantOfferViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @BindView(R.id.tv_name)
         TextView nameTextView;
@@ -95,9 +87,38 @@ public class RestaurantOfferAdapter extends
         @BindView(R.id.tv_status)
         TextView statusTextView;
 
+        private RestaurantOffer mAssociatedOfffer;
+
         RestaurantOfferViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
         }
+
+        void bindTo(RestaurantOffer offer) {
+            mAssociatedOfffer = offer;
+
+            addressTextView.setText(offer.restaurantInfo.address);
+            nameTextView.setText(offer.restaurantInfo.name);
+            quantityTextView.setText(String.valueOf(offer.quantity));
+            Picasso.get().load(offer.restaurantInfo.image).into(logoImageView);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.getDefault());
+            Calendar pickUpTimeCalendar = Calendar.getInstance();
+            pickUpTimeCalendar.setTimeInMillis(offer.pickUpTimestamp);
+            if (pickUpTimeCalendar.before(Calendar.getInstance())) {
+                statusTextView.setText(R.string.expired);
+                statusTextView.setBackgroundColor(Color.RED);
+            }
+
+            pickUpTimeTextView.setText(sdf.format(pickUpTimeCalendar.getTime()));
+        }
+
+        @Override
+        public void onClick(View view) {
+            mOfferClickListener.onOfferSelected(mAssociatedOfffer);
+        }
+
+
     }
 }

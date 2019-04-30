@@ -5,11 +5,14 @@
     <application
         android:name=".dagger.VolunteerApplication"
         android:theme="@style/AppTheme">
-        <activity android:name=".MapLocationSelectorActivity"></activity>
+        <activity android:name=".OfferDetailsActivity"></activity>
+        <activity android:name=".MapLocationSelectorActivity" />
         <activity android:name=".OfferCreatorActivity" />
         <activity android:name=".VolunteerProfileActivity" />
-        <service android:name=".services.FetchAddressIntentService"
-            android:exported="false"/>
+
+        <service
+            android:name=".services.FetchAddressIntentService"
+            android:exported="false" />
     </application>
 
 </manifest>
