@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/gr_user_actions">
+        <item android:id="@+id/it_history"
+            android:title="@string/history"/>
+        <item android:id="@+id/it_new_restaurant"
+            android:title="@string/add_restaurant_account"/>
+    </group>
+
+    <group android:id="@+id/gr_exit">
+        <item android:id="@+id/it_log_out"
+            android:title="@string/log_out"/>
+    </group>
+</menu>

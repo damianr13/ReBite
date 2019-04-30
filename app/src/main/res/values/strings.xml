@@ -33,4 +33,7 @@
     <string name="add_restaurant_account">Add restaurant account</string>
     <string name="log_out">Log out</string>
     <string name="portions_count">Number of portions:</string>
+    <string name="history">History</string>
+    <string name="nav_drawer_open">Open</string>
+    <string name="nav_drawer_close">Close</string>
 </resources>

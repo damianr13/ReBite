@@ -80,10 +80,11 @@ dependencies {
 
     // Layouts
     implementation 'com.jakewharton:butterknife:8.8.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation "com.android.support:recyclerview-v7:$android_support_version"
     implementation 'org.parceler:parceler-api:1.1.12'
+    implementation "com.android.support:design:$android_support_version"
     annotationProcessor 'org.parceler:parceler:1.1.12'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
     // Dependency Injection
     implementation 'com.google.dagger:dagger:2.21'
