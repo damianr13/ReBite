@@ -1,25 +1,21 @@
 package rebite.ro.rebiteapp.persistence;
 
 import android.content.Context;
-import android.os.UserManager;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class UsersManager {
     public static final String TAG = UsersManager.class.getName();
 
     private static final Object LOCK = new Object();
 
-    public static UsersManager INSTANCE;
+    private static UsersManager INSTANCE;
 
     private UsersManager(){
 
@@ -35,9 +31,9 @@ public class UsersManager {
         }
     }
 
-    public void createNewUser(final Context context, String username, String password) {
+    public Task<AuthResult> createNewUser(final Context context, String username, String password) {
         final FirebaseAuth auth = generateFirebaseInstance(context);
-        auth.createUserWithEmailAndPassword(username, password)
+        return auth.createUserWithEmailAndPassword(username, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information

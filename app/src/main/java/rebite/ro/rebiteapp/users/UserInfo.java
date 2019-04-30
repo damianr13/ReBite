@@ -35,7 +35,7 @@ public class UserInfo {
     public RestaurantInfo restaurantInfo;
 
     public UserInfo() {
-        this(null, null);
+        this("","");
     }
 
     private UserInfo(String displayName, String email) {
@@ -46,6 +46,13 @@ public class UserInfo {
 
     public UserInfo(@NonNull ProfileInfoProvider infoProvider) {
         this(infoProvider.getDisplayName(), infoProvider.getEmail());
+    }
+
+    public UserInfo(String email, RestaurantInfo restaurantInfo) {
+        this(restaurantInfo.name, email);
+        this.restaurantInfo = restaurantInfo;
+
+        roles.add(Role.RESTAURANT.name());
     }
 
     @Exclude

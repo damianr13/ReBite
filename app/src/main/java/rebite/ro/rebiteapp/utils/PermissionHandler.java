@@ -8,7 +8,7 @@ import android.support.v4.app.ActivityCompat;
 
 public class PermissionHandler {
 
-    public static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
+    private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
 
     public static boolean hasAccessToLocation(Context context) {
         return ActivityCompat

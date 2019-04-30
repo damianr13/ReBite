@@ -1,18 +1,14 @@
 package rebite.ro.rebiteapp.persistence;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.PendingResult;
 
 import java.util.ArrayList;
@@ -55,67 +51,58 @@ public class PersistenceManager {
         FirebaseFirestore.getInstance().collection(USERS_COLLECTION)
                 .document(GeneralProfileInfoProvider.getInstance().getUid())
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        DocumentSnapshot documentSnapshot = task.getResult();
-                        if (documentSnapshot != null && documentSnapshot.exists()) {
-                            return ;
-                        }
-
-                        persistCurrentUser(context);
+                .addOnCompleteListener(task -> {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        return ;
                     }
+
+                    persistCurrentUser(context);
                 });
     }
 
     private void persistCurrentUser(final Context context) {
         UserInfo userInfo = new UserInfo(GeneralProfileInfoProvider.getInstance());
+        persistUserWithInfo(context, GeneralProfileInfoProvider.getInstance().getUid(),
+                userInfo);
+    }
 
+    public void persistUserWithInfo(final Context context, String uid, UserInfo userInfo) {
         FirebaseFirestore.getInstance().collection(USERS_COLLECTION)
-                .document(GeneralProfileInfoProvider.getInstance().getUid())
+                .document(uid)
                 .set(userInfo)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(context,
-                                "Stored user into database!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+                .addOnCompleteListener(task -> Toast.makeText(context,
+                        "Stored user into database!",
+                        Toast.LENGTH_SHORT).show());
     }
 
     public void retrieveExtraUserInfo(final PendingResult.Callback<UserInfo> extraUserInfoCallback) {
         FirebaseFirestore.getInstance().collection(USERS_COLLECTION)
                 .document(GeneralProfileInfoProvider.getInstance().getUid())
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        DocumentSnapshot documentSnapshot = task.getResult();
+                .addOnCompleteListener(task -> {
+                    DocumentSnapshot documentSnapshot = task.getResult();
 
-                        boolean conditionsForNull = documentSnapshot == null ||
-                                !documentSnapshot.exists() ||
-                                !documentSnapshot.contains(USER_ROLES_FIELD);
-                        if (conditionsForNull) {
-                            extraUserInfoCallback.onResult(null);
-                            return ;
-                        }
-
-                        extraUserInfoCallback.onResult(documentSnapshot.toObject(UserInfo.class));
+                    boolean conditionsForNull = documentSnapshot == null ||
+                            !documentSnapshot.exists() ||
+                            !documentSnapshot.contains(USER_ROLES_FIELD);
+                    if (conditionsForNull) {
+                        extraUserInfoCallback.onResult(null);
+                        return ;
                     }
+
+                    extraUserInfoCallback.onResult(documentSnapshot.toObject(UserInfo.class));
                 });
     }
 
     public void persistOfferToGlobalDatabase(final Context context, RestaurantOffer offer) {
         FirebaseFirestore.getInstance().collection(OFFERS_COLLECTION)
             .add(offer)
-            .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentReference> task) {
-                    Toast.makeText(context, "Offer successfully published", Toast.LENGTH_SHORT)
-                        .show();
-                }
-            });
+            .addOnCompleteListener((task) ->
+                Toast.makeText(context, "Offer successfully published", Toast.LENGTH_SHORT)
+                        .show()
+
+            );
     }
 
     public void retrieveAllAvailableOffers(final RestaurantOffersRetrieverCallbacks callbacks) {
@@ -135,7 +122,7 @@ public class PersistenceManager {
 
     private void retrieveOffers(Query query, final RestaurantOffersRetrieverCallbacks callbacks) {
         query.get().addOnCompleteListener(task -> {
-                    if (!verifyTaskCompletition(task)) {
+                    if (!verifyTaskCompletion(task)) {
                         return ;
                     }
                     if (task.getResult() == null) {
@@ -151,7 +138,7 @@ public class PersistenceManager {
                 });
     }
 
-    private boolean verifyTaskCompletition(Task task) {
+    private boolean verifyTaskCompletion(Task task) {
         if (!task.isSuccessful()) {
             Log.d(TAG, "get failed with ", task.getException());
             return false;

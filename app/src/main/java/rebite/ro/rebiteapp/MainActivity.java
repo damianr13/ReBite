@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
     @Nullable @BindView(R.id.btn_facebook_login) LoginButton mFacebookLoginButton;
     @Nullable @BindView(R.id.btn_google_login) SignInButton mGoogleLoginButton;
 
-    @Nullable @BindView(R.id.et_username) EditText mUsernameEditText;
+    @Nullable @BindView(R.id.et_email) EditText mUsernameEditText;
     @Nullable @BindView(R.id.et_password) EditText mPasswordEditText;
     @Nullable @BindView(R.id.btn_email_login) Button mButton;
     @Nullable @BindView(R.id.rl_loader) View mLoader;

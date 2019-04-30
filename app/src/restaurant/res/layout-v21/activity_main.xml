@@ -21,9 +21,9 @@
         android:layout_height="wrap_content"
         android:hint="@string/password"
         android:inputType="textPassword"
-        app:layout_constraintTop_toBottomOf="@id/et_username"
-        app:layout_constraintStart_toStartOf="@id/et_username"
-        app:layout_constraintEnd_toEndOf="@id/et_username"/>
+        app:layout_constraintTop_toBottomOf="@id/et_email"
+        app:layout_constraintStart_toStartOf="@id/et_email"
+        app:layout_constraintEnd_toEndOf="@id/et_email"/>
 
     <Button
         android:id="@+id/btn_email_login"

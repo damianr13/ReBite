@@ -1,8 +1,12 @@
 package rebite.ro.rebiteapp.users.restaurants;
 
+import android.location.Location;
+
 import com.google.firebase.firestore.PropertyName;
 
 import org.parceler.Parcel;
+
+import java.util.Objects;
 
 @Parcel
 public class RestaurantInfo {
@@ -16,6 +20,12 @@ public class RestaurantInfo {
     @PropertyName("image")
     public String image;
 
+    @PropertyName("description")
+    public String description;
+
+    @PropertyName("location")
+    public Location location;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -23,14 +33,21 @@ public class RestaurantInfo {
 
         RestaurantInfo that = (RestaurantInfo) o;
 
-        if (address != null ? !address.equals(that.address) : that.address != null) return false;
-        return name != null ? name.equals(that.name) : that.name == null;
+        if (!Objects.equals(address, that.address)) return false;
+        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(image, that.image)) return false;
+        if (!Objects.equals(description, that.description))
+            return false;
+        return location != null ? location.equals(that.location) : that.location == null;
     }
 
     @Override
     public int hashCode() {
         int result = address != null ? address.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (location != null ? location.hashCode() : 0);
         return result;
     }
 }
