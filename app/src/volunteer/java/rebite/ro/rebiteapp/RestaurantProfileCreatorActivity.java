@@ -11,16 +11,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.LocationBias;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-import com.google.type.LatLng;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +28,6 @@ import rebite.ro.rebiteapp.persistence.PersistenceManager;
 import rebite.ro.rebiteapp.persistence.UsersManager;
 import rebite.ro.rebiteapp.users.UserInfo;
 import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
-import rebite.ro.rebiteapp.utils.LocationUtils;
-import rebite.ro.rebiteapp.utils.PermissionHandler;
 
 import static rebite.ro.rebiteapp.MapLocationSelectorActivity.ADDRESS_KEY;
 import static rebite.ro.rebiteapp.MapLocationSelectorActivity.LOCATION_KEY;
@@ -42,8 +36,6 @@ public class RestaurantProfileCreatorActivity extends AppCompatActivity {
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 301;
     private static final int ADDRESS_SELECTOR_REQUEST_CODE = 302;
-
-    private static final int PLACES_AUTOCOMPLETE_RADIUS = 10000;
 
     private static final String TAG = RestaurantProfileCreatorActivity.class.getName();
 
@@ -117,36 +109,8 @@ public class RestaurantProfileCreatorActivity extends AppCompatActivity {
                 AutocompleteActivityMode.FULLSCREEN, fields)
                     .setCountry("ro")
                     .setTypeFilter(TypeFilter.ADDRESS)
-                    .setLocationBias()
                     .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-    }
-
-    public LocationBias buildPlacesLocationBias() {
-        if (!PermissionHandler.hasAccessToLocation(this)) {
-            PermissionHandler.askForAccessToLocation(this);
-        }
-
-        if (!PermissionHandler.hasAccessToLocation(this)) {
-            return null;
-        }
-        Location currentLocation = LocationUtils.getCurrentUserLocation(this);
-        if (currentLocation == null) {
-            return null;
-        }
-
-        LatLng southWest = LatLng.newBuilder()
-                .setLatitude(currentLocation.getLatitude() - PLACES_AUTOCOMPLETE_RADIUS / 2)
-                .setLongitude(currentLocation.getLongitude() - PLACES_AUTOCOMPLETE_RADIUS / 2)
-                .build();
-        LatLng northEast = LatLng.newBuilder()
-                .setLatitude(currentLocation.getLatitude() + PLACES_AUTOCOMPLETE_RADIUS / 2)
-                .setLongitude(currentLocation.getLongitude() + PLACES_AUTOCOMPLETE_RADIUS / 2)
-                .build();
-        new Circle();
-        return RectangularBounds.newInstance(currentLocation.lat)
-//        return "location=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude() +
-//                "&radius=" + PLACES_AUTOCOMPLETE_RADIUS;
     }
 
     @OnClick(R.id.btn_choose_location)
