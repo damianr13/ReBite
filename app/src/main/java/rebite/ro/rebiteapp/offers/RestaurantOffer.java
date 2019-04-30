@@ -4,6 +4,7 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
 import org.parceler.Parcel;
+import org.parceler.Transient;
 
 import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
 
@@ -21,7 +22,7 @@ public class RestaurantOffer  {
     @Exclude public static final String STATE_FIELD = "state";
 
     @PropertyName(RESTAURANT_INFO_FIELD)
-    public RestaurantInfo restaurantInfo;
+    @Transient public RestaurantInfo restaurantInfo;
 
     @PropertyName(PICK_UP_TIME_FIELD)
     public long pickUpTimestamp;

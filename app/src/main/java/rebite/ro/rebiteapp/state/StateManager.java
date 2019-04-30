@@ -1,7 +1,5 @@
 package rebite.ro.rebiteapp.state;
 
-import android.content.Context;
-
 import rebite.ro.rebiteapp.users.UserInfo;
 import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
 
@@ -38,6 +36,6 @@ public class StateManager {
     }
 
     public boolean hasAdminRights() {
-        return mUserInfo.getCurrentUserRoles().contains(UserInfo.Role.ADMIN);
+        return mUserInfo != null && mUserInfo.getCurrentUserRoles().contains(UserInfo.Role.ADMIN);
     }
 }

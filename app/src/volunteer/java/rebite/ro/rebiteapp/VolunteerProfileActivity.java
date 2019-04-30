@@ -3,8 +3,6 @@ package rebite.ro.rebiteapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,10 +18,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Optional;
-import rebite.ro.rebiteapp.adapters.RestaurantOfferAdapter;
+import rebite.ro.rebiteapp.fragments.RestaurantOfferFragment;
 import rebite.ro.rebiteapp.offers.RestaurantOffer;
 import rebite.ro.rebiteapp.persistence.PersistenceManager;
+import rebite.ro.rebiteapp.persistence.UsersManager;
 import rebite.ro.rebiteapp.persistence.callbacks.RestaurantOffersRetrieverCallbacks;
+import rebite.ro.rebiteapp.state.StateManager;
 import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
 import rebite.ro.rebiteapp.users.ProfileInfoProvider;
 
@@ -36,9 +36,8 @@ public class VolunteerProfileActivity extends AppCompatActivity
 
     @BindView(R.id.iv_profile_picture) ImageView mProfileImageView;
     @BindView(R.id.tv_display_name) TextView mDisplayNameTextView;
-    @BindView(R.id.rv_restaurant_offers) RecyclerView mRestaurantOffersRecyclerView;
 
-    private RestaurantOfferAdapter mAdapter;
+    private RestaurantOfferFragment mOffersFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +53,9 @@ public class VolunteerProfileActivity extends AppCompatActivity
                 .into(mProfileImageView);
         mDisplayNameTextView.setText(profileInfoProvider.getDisplayName());
 
-        mRestaurantOffersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        mAdapter = new RestaurantOfferAdapter(this);
-        mRestaurantOffersRecyclerView.setAdapter(mAdapter);
-
         PersistenceManager.getInstance().retrieveAllAvailableOffers(this);
+        mOffersFragment = (RestaurantOfferFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fr_offers);
     }
 
     @Optional
@@ -74,8 +70,9 @@ public class VolunteerProfileActivity extends AppCompatActivity
     @OnClick(R.id.btn_add_restaurant_profile)
     public void launchRestaurantProfileCreatorActivity(View v) {
         String authenticatedUserId = GeneralProfileInfoProvider.getInstance().getUid();
-        if (authenticatedUserId == null) {
-            Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_SHORT).show();
+        if (authenticatedUserId == null || !StateManager.getInstance().hasAdminRights()) {
+            Toast.makeText(this, R.string.permission_not_granted,
+                    Toast.LENGTH_SHORT).show();
             return ;
         }
 
@@ -91,6 +88,15 @@ public class VolunteerProfileActivity extends AppCompatActivity
     @Override
     public void onRestaurantOffersRetrieved(List<RestaurantOffer> result) {
         Log.i(TAG, "Received " + result.size() + " offers");
-        mAdapter.swapRestaurantOffers(result);
+        mOffersFragment.swapRestaurantOffersList(result);
+    }
+
+    @OnClick(R.id.btn_log_out)
+    public void onLogOut(View v) {
+        UsersManager.getInstance().logOutCurrentUser();
+
+        Intent homeIntent = new Intent(this, MainActivity.class);
+        startActivity(homeIntent);
+        finish();
     }
 }

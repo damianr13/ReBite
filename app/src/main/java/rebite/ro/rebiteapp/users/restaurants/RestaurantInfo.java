@@ -1,14 +1,10 @@
 package rebite.ro.rebiteapp.users.restaurants;
 
-import android.location.Location;
-
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.PropertyName;
-
-import org.parceler.Parcel;
 
 import java.util.Objects;
 
-@Parcel
 public class RestaurantInfo {
 
     @PropertyName("address")
@@ -24,7 +20,7 @@ public class RestaurantInfo {
     public String description;
 
     @PropertyName("location")
-    public Location location;
+    public SimpleLocation location;
 
     @Override
     public boolean equals(Object o) {

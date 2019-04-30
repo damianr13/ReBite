@@ -28,6 +28,7 @@ import rebite.ro.rebiteapp.persistence.PersistenceManager;
 import rebite.ro.rebiteapp.persistence.UsersManager;
 import rebite.ro.rebiteapp.users.UserInfo;
 import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
+import rebite.ro.rebiteapp.users.restaurants.SimpleLocation;
 
 import static rebite.ro.rebiteapp.MapLocationSelectorActivity.ADDRESS_KEY;
 import static rebite.ro.rebiteapp.MapLocationSelectorActivity.LOCATION_KEY;
@@ -95,7 +96,7 @@ public class RestaurantProfileCreatorActivity extends AppCompatActivity {
         result.name = "Dummy name";
         result.description = "Dummy Description";
         result.image = "https://picsum.photos/id/114/300/300";
-        result.location = mSelectedLocation;
+        result.location = new SimpleLocation(mSelectedLocation);
 
         return result;
     }

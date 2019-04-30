@@ -30,4 +30,6 @@
     <string name="address_found">Found address</string>
     <string name="confirm_location">Confirm location</string>
     <string name="select_location_restaurant">Please select location of restaurant</string>
+    <string name="add_restaurant_account">Add restaurant account</string>
+    <string name="log_out">Log out</string>
 </resources>
