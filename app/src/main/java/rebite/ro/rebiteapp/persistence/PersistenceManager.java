@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -145,5 +146,20 @@ public class PersistenceManager {
         }
 
         return true;
+    }
+
+    public void updateDebugPickupTimes() {
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(OFFERS_COLLECTION)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        DocumentReference ref = db.collection(OFFERS_COLLECTION)
+                                .document(doc.getId());
+                        ref.update("pick_up_time", 1556739235000L);
+                    }
+                });
+
     }
 }

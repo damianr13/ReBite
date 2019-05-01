@@ -36,4 +36,7 @@
     <string name="history">History</string>
     <string name="nav_drawer_open">Open</string>
     <string name="nav_drawer_close">Close</string>
+    <string name="take_offer">Take offer</string>
+    <string name="eta">Estimated time of arrival: %1$s</string>
+    <string name="pickup_time_value">Pick up time: %1$s</string>
 </resources>

@@ -37,6 +37,8 @@ public class GoogleMapController implements LocationListener, Callback<Direction
 
     private Location mLastKnownLocation;
 
+    private RouteListener mRouteListener;
+
     public GoogleMapController(Activity activity, GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mActivity = activity;
@@ -84,13 +86,16 @@ public class GoogleMapController implements LocationListener, Callback<Direction
 
     }
 
-    public void animateMapTo(Location location) {
+    private void animateMapTo(@NonNull Location location) {
         LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
         animateMapTo(center);
     }
 
     public void animateMapToCurrentLocation() {
-        animateMapTo(getCurrentLocation());
+        Location currentLocation = getCurrentLocation();
+        if (currentLocation != null) {
+            animateMapTo(currentLocation);
+        }
     }
 
     private void animateMapTo(LatLng currentPosition) {
@@ -110,6 +115,12 @@ public class GoogleMapController implements LocationListener, Callback<Direction
     }
 
     public void showDirectionsTo(LatLng destination) {
+        showDirectionsTo(destination, null);
+    }
+
+    public void showDirectionsTo(LatLng destination, RouteListener routeListener) {
+        mRouteListener = routeListener;
+
         com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(
                 mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         DirectionsApi.newRequest(getGeoContext())
@@ -171,6 +182,10 @@ public class GoogleMapController implements LocationListener, Callback<Direction
 
     @Override
     public void onResult(DirectionsResult result) {
+        if (mRouteListener != null) {
+            mRouteListener.onRouteRetrieved(new RouteInfo(result));
+        }
+
         List<LatLng> decodedPath = convertLatLng(result.routes[0].overviewPolyline.decodePath());
         mActivity.runOnUiThread(() -> mGoogleMap.addPolyline(new PolylineOptions().addAll(decodedPath)));
     }

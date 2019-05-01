@@ -2,12 +2,14 @@ package rebite.ro.rebiteapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,8 +21,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Optional;
 import rebite.ro.rebiteapp.fragments.RestaurantOfferFragment;
 import rebite.ro.rebiteapp.offers.RestaurantOffer;
 import rebite.ro.rebiteapp.persistence.PersistenceManager;
@@ -33,13 +33,14 @@ import rebite.ro.rebiteapp.users.ProfileInfoProvider;
 import static rebite.ro.rebiteapp.utils.PublicKeys.LAT_LNG_DESTINATION_KEY;
 
 public class VolunteerProfileActivity extends AppCompatActivity
-        implements RestaurantOffersRetrieverCallbacks{
+        implements RestaurantOffersRetrieverCallbacks, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = VolunteerProfileActivity.class.getName();
 
     @BindView(R.id.iv_profile_picture) ImageView mProfileImageView;
     @BindView(R.id.tv_display_name) TextView mDisplayNameTextView;
     @BindView(R.id.tv_email) TextView mEmailTextView;
+    @BindView(R.id.nv_menu) NavigationView mNavigationView;
 
     private RestaurantOfferFragment mOffersFragment;
 
@@ -66,7 +67,6 @@ public class VolunteerProfileActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
         ButterKnife.bind(this);
-
         ProfileInfoProvider profileInfoProvider = GeneralProfileInfoProvider.getInstance();
 
         Picasso.get()
@@ -75,20 +75,17 @@ public class VolunteerProfileActivity extends AppCompatActivity
         mDisplayNameTextView.setText(profileInfoProvider.getDisplayName());
         mEmailTextView.setText(profileInfoProvider.getEmail());
 
+        mNavigationView.setNavigationItemSelectedListener(this);
         return result;
     }
 
-    @Optional
-    @OnClick(R.id.btn_dummy_maps)
-    public void launchMapsActivity(View v) {
+    public void launchMapsActivity() {
         Intent mapsActivityIntent = new Intent(this, MapsActivity.class);
         mapsActivityIntent.putExtra(LAT_LNG_DESTINATION_KEY, provideMockLatLng());
         startActivity(mapsActivityIntent);
     }
 
-    @Optional
-    @OnClick(R.id.btn_add_restaurant_profile)
-    public void launchRestaurantProfileCreatorActivity(View v) {
+    public void launchRestaurantProfileCreatorActivity() {
         String authenticatedUserId = GeneralProfileInfoProvider.getInstance().getUid();
         if (authenticatedUserId == null || !StateManager.getInstance().hasAdminRights()) {
             Toast.makeText(this, R.string.permission_not_granted,
@@ -111,12 +108,34 @@ public class VolunteerProfileActivity extends AppCompatActivity
         mOffersFragment.swapRestaurantOffersList(result);
     }
 
-    @OnClick(R.id.btn_log_out)
-    public void onLogOut(View v) {
+    public void onLogOut() {
         UsersManager.getInstance().logOutCurrentUser();
 
         Intent homeIntent = new Intent(this, MainActivity.class);
         startActivity(homeIntent);
         finish();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.it_update_times:
+                PersistenceManager.getInstance().updateDebugPickupTimes();
+                finish();
+                return true;
+            case R.id.it_log_out:
+                onLogOut();
+                return true;
+            case R.id.it_new_restaurant:
+                launchRestaurantProfileCreatorActivity();
+                return true;
+            case R.id.it_history:
+                // TODO: implement history and change this
+                launchMapsActivity();
+                return true;
+        }
+
+        Log.w(TAG, "Unknown menu item: " + menuItem.getTitle().toString());
+        return false;
     }
 }
