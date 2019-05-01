@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,36 +24,48 @@ import rebite.ro.rebiteapp.persistence.PersistenceManager;
 import rebite.ro.rebiteapp.persistence.callbacks.RestaurantOffersRetrieverCallbacks;
 import rebite.ro.rebiteapp.state.StateManager;
 import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
+import rebite.ro.rebiteapp.utils.UIUtils;
 
 public class RestaurantProfileActivity extends AppCompatActivity
         implements RestaurantOffersRetrieverCallbacks{
 
     private static final int CREATE_OFFER_REQUEST = 100;
 
-    @BindView(R.id.iv_logo) ImageView mLogoImageView;
-    @BindView(R.id.tv_restaurant_name) TextView mNameTextView;
-    @BindView(R.id.tv_restaurant_address) TextView mAddressTextView;
+    @BindView(R.id.iv_profile_picture) ImageView mLogoImageView;
+    @BindView(R.id.tv_display_name) TextView mNameTextView;
     @BindView(R.id.vp_offers_tabs) ViewPager mOffersTabsViewPager;
 
     private OffersListPageAdapter mOffersListPageAdapter;
+    private RestaurantInfo mCurrentRestaurantInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_restaurant_profile);
+        setContentView(R.layout.activity_profile);
+
+        UIUtils.enableNavDrawerMenu(this);
+
+        mCurrentRestaurantInfo = StateManager.getInstance().getRestaurantInfo();
+        mOffersListPageAdapter = new OffersListPageAdapter(getSupportFragmentManager(), this);
+
+        pullOffersFromServer();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
         ButterKnife.bind(this);
 
-        RestaurantInfo currentRestaurantInfo = StateManager.getInstance().getRestaurantInfo();
-        String logoURL = currentRestaurantInfo.image;
+        String logoURL = mCurrentRestaurantInfo.image;
         if (logoURL != null) {
             Picasso.get().load(logoURL).into(mLogoImageView);
         }
-        mNameTextView.setText(currentRestaurantInfo.name);
-        mAddressTextView.setText(currentRestaurantInfo.address);
-
-        mOffersListPageAdapter = new OffersListPageAdapter(getSupportFragmentManager(), this);
+        mNameTextView.setText(mCurrentRestaurantInfo.name);
         mOffersTabsViewPager.setAdapter(mOffersListPageAdapter);
 
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void pullOffersFromServer() {
         PersistenceManager.getInstance().retrieveAllOffersByRestaurant(
                 StateManager.getInstance().getRestaurantInfo(), this);
     }
@@ -82,6 +95,7 @@ public class RestaurantProfileActivity extends AppCompatActivity
                     Parcels.unwrap(data.getParcelableExtra(OfferCreatorActivity.OFFER_RESULT));
 
             PersistenceManager.getInstance().persistOfferToGlobalDatabase(this, offer);
+            pullOffersFromServer();
         }
     }
 }

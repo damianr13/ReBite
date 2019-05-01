@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 28
@@ -83,12 +84,12 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:$android_support_version"
     implementation 'org.parceler:parceler-api:1.1.12'
     implementation "com.android.support:design:$android_support_version"
-    annotationProcessor 'org.parceler:parceler:1.1.12'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    kapt 'org.parceler:parceler:1.1.12'
+    kapt 'com.jakewharton:butterknife-compiler:8.8.1'
 
     // Dependency Injection
     implementation 'com.google.dagger:dagger:2.21'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.21'
+    kapt 'com.google.dagger:dagger-compiler:2.21'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -100,4 +101,8 @@ dependencies {
 
 repositories {
     mavenCentral()
+}
+
+kapt {
+    generateStubs true
 }

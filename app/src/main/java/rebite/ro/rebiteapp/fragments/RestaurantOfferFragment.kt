@@ -1,6 +1,5 @@
 package rebite.ro.rebiteapp.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.app.Fragment
@@ -10,18 +9,25 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_restaurantoffer.view.*
 import org.parceler.Parcels
-import rebite.ro.rebiteapp.OfferDetailsActivity
-import rebite.ro.rebiteapp.OfferDetailsActivity.Companion.OFFER_KEY
 import rebite.ro.rebiteapp.R
 import rebite.ro.rebiteapp.adapters.RestaurantOfferAdapter
+import rebite.ro.rebiteapp.dagger.AbstractMainApplication
+import rebite.ro.rebiteapp.dagger.FlavorSpecificActivityFactory
 import rebite.ro.rebiteapp.offers.RestaurantOffer
+import javax.inject.Inject
 
 class RestaurantOfferFragment : Fragment(), RestaurantOfferAdapter.IOfferClickListener {
     private lateinit var mRestaurantOfferAdapter : RestaurantOfferAdapter
     private var mRestaurantOfferList : List<RestaurantOffer>? = null
 
+    @Inject lateinit var mFlavorSpecificActivityFactory: FlavorSpecificActivityFactory
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        activity?.let {
+            (it.application as AbstractMainApplication)
+                    .flavorSpecificComponent.inject(this)
+        }
 
         retainInstance = true
     }
@@ -48,8 +54,10 @@ class RestaurantOfferFragment : Fragment(), RestaurantOfferAdapter.IOfferClickLi
     }
 
     override fun onOfferSelected(offer: RestaurantOffer) {
-        val offerDetailsIntent = Intent(context, OfferDetailsActivity::class.java)
-        offerDetailsIntent.putExtra(OFFER_KEY, Parcels.wrap(offer))
+        val offerDetailsIntent = mFlavorSpecificActivityFactory
+                .getIntentForOfferDetailsActivity(context, offer)
+        offerDetailsIntent?: return
+
         startActivity(offerDetailsIntent)
     }
 

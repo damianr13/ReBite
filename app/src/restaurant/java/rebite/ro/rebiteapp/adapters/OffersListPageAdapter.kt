@@ -54,6 +54,11 @@ class OffersListPageAdapter(fm: FragmentManager, context: Context) : FragmentPag
     }
 
     private fun updateFragment(position: Int) {
+        // check if fragment at given position was initialized
+        if (mFragmentsMap.size() <= position) {
+            return
+        }
+
         val fragment = mFragmentsMap[position]
         fragment.swapRestaurantOffersList(getRestaurantOfferList(position))
     }

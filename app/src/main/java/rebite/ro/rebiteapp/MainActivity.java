@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallbacks{
             blockInput();
             ProfileInfoProvider profileInfoProvider = new CacheProfileInfoManager(this)
                     .retrieveCachedProfileInfoProvider();
-            if (profileInfoProvider == null) {
+            if (isVolunteerApp() && profileInfoProvider == null) {
                 allowInput();
                 return ;
             }
