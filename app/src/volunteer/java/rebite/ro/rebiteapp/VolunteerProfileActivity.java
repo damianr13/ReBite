@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +27,7 @@ import rebite.ro.rebiteapp.persistence.callbacks.RestaurantOffersRetrieverCallba
 import rebite.ro.rebiteapp.state.StateManager;
 import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
 import rebite.ro.rebiteapp.users.ProfileInfoProvider;
+import rebite.ro.rebiteapp.utils.UIUtils;
 
 import static rebite.ro.rebiteapp.utils.PublicKeys.LAT_LNG_DESTINATION_KEY;
 
@@ -48,15 +47,7 @@ public class VolunteerProfileActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        DrawerLayout dl = findViewById(R.id.dl_container);
-        ActionBarDrawerToggle t = new ActionBarDrawerToggle(this, dl,
-                R.string.nav_drawer_open, R.string.nav_drawer_close);
-
-        dl.addDrawerListener(t);
-        t.syncState();
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        UIUtils.enableNavDrawerMenu(this);
 
         PersistenceManager.getInstance().retrieveAllAvailableOffers(this);
         mOffersFragment = (RestaurantOfferFragment) getSupportFragmentManager()
