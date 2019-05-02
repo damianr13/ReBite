@@ -6,6 +6,8 @@ import android.util.Log;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
+import org.parceler.Parcel;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import javax.annotation.Nullable;
 import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
+@Parcel
 public class UserInfo {
 
     private static final String TAG = UserInfo.class.getName();

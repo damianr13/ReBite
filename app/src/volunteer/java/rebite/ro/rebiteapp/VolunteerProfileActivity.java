@@ -55,6 +55,15 @@ public class VolunteerProfileActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (!PersistenceManager.getInstance().isCacheValid()) {
+            PersistenceManager.getInstance().retrieveAllAvailableOffers(this);
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
         ButterKnife.bind(this);

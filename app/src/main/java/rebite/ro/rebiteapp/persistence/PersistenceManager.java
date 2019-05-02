@@ -13,10 +13,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.maps.PendingResult;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import rebite.ro.rebiteapp.offers.RestaurantOffer;
+import rebite.ro.rebiteapp.persistence.callbacks.OfferUpdatedCallback;
 import rebite.ro.rebiteapp.persistence.callbacks.RestaurantOffersRetrieverCallbacks;
 import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
 import rebite.ro.rebiteapp.users.UserInfo;
@@ -35,7 +36,10 @@ public class PersistenceManager {
 
     private static PersistenceManager INSTANCE;
 
+    private boolean cacheValid;
+
     private PersistenceManager() {
+        cacheValid = false;
     }
 
     public static PersistenceManager getInstance() {
@@ -46,6 +50,14 @@ public class PersistenceManager {
 
             return INSTANCE;
         }
+    }
+
+    public void invalidateCache() {
+        cacheValid = false;
+    }
+
+    public boolean isCacheValid() {
+        return cacheValid;
     }
 
     public void synchronizeCurrentUser(final Context context) {
@@ -109,7 +121,8 @@ public class PersistenceManager {
     public void retrieveAllAvailableOffers(final RestaurantOffersRetrieverCallbacks callbacks) {
         Query q = FirebaseFirestore.getInstance()
                 .collection(OFFERS_COLLECTION)
-                .whereGreaterThan(RestaurantOffer.PICK_UP_TIME_FIELD, Calendar.getInstance().getTimeInMillis());
+                .whereEqualTo(RestaurantOffer.STATE_FIELD, RestaurantOffer.OfferState.AVAILABLE)
+                .whereGreaterThan(RestaurantOffer.PICK_UP_TIME_FIELD, System.currentTimeMillis());
         retrieveOffers(q, callbacks);
     }
 
@@ -123,29 +136,52 @@ public class PersistenceManager {
 
     private void retrieveOffers(Query query, final RestaurantOffersRetrieverCallbacks callbacks) {
         query.get().addOnCompleteListener(task -> {
-                    if (!verifyTaskCompletion(task)) {
+            if (verifyTaskFailed(task)) {
+                    return ;
+                }
+                if (task.getResult() == null) {
+                    return ;
+                }
+
+                List<RestaurantOffer> result = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    RestaurantOffer currentOffer = document.toObject(RestaurantOffer.class);
+                    syncAssignedUserFor(document, currentOffer);
+                    result.add(currentOffer);
+                }
+
+                callbacks.onRestaurantOffersRetrieved(result);
+            });
+        cacheValid = true;
+    }
+
+    private void syncAssignedUserFor(DocumentSnapshot offerDocument, RestaurantOffer offerObject) {
+        DocumentReference userReference =
+                offerDocument.getDocumentReference(RestaurantOffer.ASSIGNED_USER_FIELD);
+        if (userReference == null) {
+            return ;
+        }
+
+        userReference.get()
+                .addOnCompleteListener(task -> {
+                    if(verifyTaskFailed(task)) {
                         return ;
                     }
                     if (task.getResult() == null) {
                         return ;
                     }
 
-                    List<RestaurantOffer> result = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        result.add(document.toObject(RestaurantOffer.class));
-                    }
-
-                    callbacks.onRestaurantOffersRetrieved(result);
+                    offerObject.assignedUser = task.getResult().toObject(UserInfo.class);
                 });
     }
 
-    private boolean verifyTaskCompletion(Task task) {
+    private boolean verifyTaskFailed(Task task) {
         if (!task.isSuccessful()) {
             Log.d(TAG, "get failed with ", task.getException());
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public void updateDebugPickupTimes() {
@@ -157,9 +193,67 @@ public class PersistenceManager {
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         DocumentReference ref = db.collection(OFFERS_COLLECTION)
                                 .document(doc.getId());
-                        ref.update("pick_up_time", 1556739235000L);
+                        long newDebugDeadline =
+                                System.currentTimeMillis() + TimeUnit.HOURS.toMillis(13);
+                        ref.update(RestaurantOffer.PICK_UP_TIME_FIELD, newDebugDeadline);
                     }
                 });
+    }
 
+    public void assignOfferToCurrentUser(RestaurantOffer offer, OfferUpdatedCallback callback) {
+        runUpdateQueryOnOffer(offer, callback,
+                (documentReference) -> assignOfferToCurrentUser(documentReference, callback));
+    }
+
+    private void assignOfferToCurrentUser(DocumentReference offerReference,
+                                          OfferUpdatedCallback callback) {
+        DocumentReference userReference = FirebaseFirestore.getInstance()
+                .collection(USERS_COLLECTION)
+                .document(GeneralProfileInfoProvider.getInstance().getUid());
+        Task<Void> updateTask = offerReference.update(
+                RestaurantOffer.ASSIGNED_USER_FIELD, userReference,
+                RestaurantOffer.STATE_FIELD, RestaurantOffer.OfferState.IN_PROGRESS);
+
+        updateTask.addOnCompleteListener(task ->
+                callback.onOfferUpdateFinished(!verifyTaskFailed(task)));
+    }
+
+    public void markOfferComplete(RestaurantOffer offer, OfferUpdatedCallback callback) {
+        runUpdateQueryOnOffer(offer, callback,
+                (offerReference) -> markOfferComplete(offerReference, callback));
+    }
+
+    private void markOfferComplete(DocumentReference offerReference, OfferUpdatedCallback callback) {
+        offerReference.update(RestaurantOffer.STATE_FIELD, RestaurantOffer.OfferState.FINISHED)
+                .addOnCompleteListener(
+                        task -> callback.onOfferUpdateFinished(!verifyTaskFailed(task)));
+    }
+
+    private void runUpdateQueryOnOffer(RestaurantOffer offer, OfferUpdatedCallback callback,
+                                       IOfferOperations operations) {
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(OFFERS_COLLECTION)
+                .whereEqualTo(RestaurantOffer.RESTAURANT_INFO_FIELD, offer.restaurantInfo)
+                .whereEqualTo(RestaurantOffer.PICK_UP_TIME_FIELD, offer.pickUpTimestamp)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (verifyTaskFailed(task)) {
+                        callback.onOfferUpdateFinished(false);
+                        return ;
+                    }
+                    if (task.getResult() == null) {
+                        callback.onOfferUpdateFinished(false);
+                        return ;
+                    }
+
+                    DocumentSnapshot offerDocument = task.getResult().getDocuments().get(0);
+                    DocumentReference offerReference = db.collection(OFFERS_COLLECTION)
+                            .document(offerDocument.getId());
+                    operations.apply(offerReference);
+                });
+    }
+
+    private interface IOfferOperations {
+        void apply(DocumentReference documentReference);
     }
 }

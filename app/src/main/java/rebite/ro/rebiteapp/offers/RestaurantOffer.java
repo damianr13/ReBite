@@ -4,8 +4,8 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
 import org.parceler.Parcel;
-import org.parceler.Transient;
 
+import rebite.ro.rebiteapp.users.UserInfo;
 import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
 
 @Parcel
@@ -15,6 +15,7 @@ public class RestaurantOffer  {
         AVAILABLE, EXPIRED, IN_PROGRESS, FINISHED
     }
 
+    @Exclude public static final String ASSIGNED_USER_FIELD = "assigned_user";
     @Exclude public static final String RESTAURANT_INFO_FIELD = "restaurant_info";
     @Exclude public static final String PICK_UP_TIME_FIELD = "pick_up_time";
     @Exclude public static final String QUANTITY_FIELD = "quantity";
@@ -35,6 +36,8 @@ public class RestaurantOffer  {
 
     @PropertyName(STATE_FIELD)
     public OfferState state = OfferState.AVAILABLE; //default value
+
+    @Exclude public UserInfo assignedUser;
 
     public static class Builder {
         private RestaurantOffer result;

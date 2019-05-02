@@ -3,6 +3,8 @@ package rebite.ro.rebiteapp
 import android.annotation.SuppressLint
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -14,6 +16,8 @@ import rebite.ro.rebiteapp.maps.GoogleMapController
 import rebite.ro.rebiteapp.maps.RouteInfo
 import rebite.ro.rebiteapp.maps.RouteListener
 import rebite.ro.rebiteapp.offers.RestaurantOffer
+import rebite.ro.rebiteapp.persistence.PersistenceManager
+import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider
 import rebite.ro.rebiteapp.utils.PermissionHandler
 import rebite.ro.rebiteapp.utils.TimeUtils
 
@@ -61,6 +65,39 @@ class OfferDetailsActivity : AppCompatActivity(), RouteListener {
         tv_number_of_portions_value.text = mRestaurantOffer.quantity.toString()
         tv_pick_up_time.text = getString(R.string.pickup_time_value,
                 TimeUtils.format(mRestaurantOffer.pickUpTimestamp))
+
+        btn_take_offer.visibility =
+                if(mRestaurantOffer.state == RestaurantOffer.OfferState.AVAILABLE)
+                    View.VISIBLE else
+                    View.GONE
+
+        val userInChargeOfOffer = mRestaurantOffer.state == RestaurantOffer.OfferState.IN_PROGRESS &&
+                mRestaurantOffer.assignedUser.email == GeneralProfileInfoProvider.getInstance().email
+        btn_mark_complete.visibility = if (userInChargeOfOffer) View.VISIBLE else View.GONE
+
+        btn_take_offer.setOnClickListener {
+            PersistenceManager.getInstance().assignOfferToCurrentUser(mRestaurantOffer) {
+                val message = if (it) getString(R.string.offer_assgined_success) else
+                    getString(R.string.offer_assigned_failure)
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                PersistenceManager.getInstance().invalidateCache()
+                runOnUiThread {
+                    finish()
+                }
+            }
+        }
+
+        btn_mark_complete.setOnClickListener {
+            PersistenceManager.getInstance().markOfferComplete(mRestaurantOffer) {
+                val message = if (it) getString(R.string.offer_marked_complete_success) else
+                    getString(R.string.offer_marked_complete_failure)
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                PersistenceManager.getInstance().invalidateCache()
+                runOnUiThread {
+                    finish()
+                }
+            }
+        }
     }
 
     private fun getRestaurantLatLng(): LatLng {

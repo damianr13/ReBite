@@ -11,7 +11,7 @@ class RestaurantOffersManager {
         }
 
         fun filterAvailableOffers(offers : List<RestaurantOffer>): List<RestaurantOffer> {
-            return offers.filter { !offerExpired(it)}
+            return offers.filter { it.state == RestaurantOffer.OfferState.AVAILABLE && !offerExpired(it)}
         }
     }
 }
