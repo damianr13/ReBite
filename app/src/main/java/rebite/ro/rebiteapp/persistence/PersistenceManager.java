@@ -126,6 +126,17 @@ public class PersistenceManager {
         retrieveOffers(q, callbacks);
     }
 
+    public void retrieveInProgressOffersForUser(final RestaurantOffersRetrieverCallbacks callbacks) {
+        DocumentReference currentUserReference = FirebaseFirestore.getInstance()
+                .collection(USERS_COLLECTION)
+                .document(GeneralProfileInfoProvider.getInstance().getUid());
+        Query q = FirebaseFirestore.getInstance()
+                .collection(OFFERS_COLLECTION)
+                .whereEqualTo(RestaurantOffer.STATE_FIELD, RestaurantOffer.OfferState.IN_PROGRESS)
+                .whereEqualTo(RestaurantOffer.ASSIGNED_USER_FIELD, currentUserReference);
+        retrieveOffers(q, callbacks);
+    }
+
     public void retrieveAllOffersByRestaurant(RestaurantInfo restaurantInfo,
                                               final RestaurantOffersRetrieverCallbacks callbacks) {
         Query q = FirebaseFirestore.getInstance()

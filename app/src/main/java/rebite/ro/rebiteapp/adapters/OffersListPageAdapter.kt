@@ -14,11 +14,10 @@ class OffersListPageAdapter(fm: FragmentManager, context: Context) : FragmentPag
     private var mAllRestaurantOffers : List<RestaurantOffer>? = null
     private var mFragmentsMap : SparseArray<RestaurantOfferFragment> = SparseArray()
 
-
     private val mContext: Context = context
 
     override fun getCount(): Int {
-        return 2
+        return 3
     }
 
     override fun getItem(position: Int): RestaurantOfferFragment {
@@ -31,7 +30,8 @@ class OffersListPageAdapter(fm: FragmentManager, context: Context) : FragmentPag
     private fun getRestaurantOfferList(position: Int) : List<RestaurantOffer> {
         return when (position) {
             0 -> RestaurantOffersManager.filterAvailableOffers(mAllRestaurantOffers.orEmpty())
-            1 -> RestaurantOffersManager.filterExpiredOffers(mAllRestaurantOffers.orEmpty())
+            1 -> RestaurantOffersManager.filterInProgressOffers(mAllRestaurantOffers.orEmpty())
+            2 -> RestaurantOffersManager.filterExpiredOffers(mAllRestaurantOffers.orEmpty())
             else -> emptyList()
         }
     }
@@ -39,7 +39,8 @@ class OffersListPageAdapter(fm: FragmentManager, context: Context) : FragmentPag
     override fun getPageTitle(position: Int): CharSequence? {
         return when (position) {
             0 -> mContext.getString(R.string.available_offers)
-            1 -> mContext.getString(R.string.expired_offers)
+            1 -> mContext.getString(R.string.in_progress_offers)
+            2 -> mContext.getString(R.string.expired_offers)
             else -> ""
         }
     }

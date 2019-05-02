@@ -133,6 +133,11 @@ public class VolunteerProfileActivity extends AppCompatActivity
                 // TODO: implement history and change this
                 launchMapsActivity();
                 return true;
+            case R.id.it_in_progress_offers:
+                Intent launchActivityIntent = new Intent(this,
+                        CurrentlyInProgressOffersActivity.class);
+                startActivity(launchActivityIntent);
+                return true;
         }
 
         Log.w(TAG, "Unknown menu item: " + menuItem.getTitle().toString());

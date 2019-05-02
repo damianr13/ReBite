@@ -1,5 +1,6 @@
 package rebite.ro.rebiteapp.utils
 
+import com.google.android.gms.maps.model.LatLng
 import rebite.ro.rebiteapp.offers.RestaurantOffer
 
 class RestaurantOffersManager {
@@ -12,6 +13,15 @@ class RestaurantOffersManager {
 
         fun filterAvailableOffers(offers : List<RestaurantOffer>): List<RestaurantOffer> {
             return offers.filter { it.state == RestaurantOffer.OfferState.AVAILABLE && !offerExpired(it)}
+        }
+
+        fun filterInProgressOffers(offers: List<RestaurantOffer>): List<RestaurantOffer> {
+            return offers.filter { it.state == RestaurantOffer.OfferState.IN_PROGRESS}
+        }
+
+        fun getLatLongForOffer(offer: RestaurantOffer): LatLng {
+            val restaurantLocation = offer.restaurantInfo.location
+            return LatLng(restaurantLocation.latitude, restaurantLocation.longitude)
         }
     }
 }

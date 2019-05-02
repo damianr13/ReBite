@@ -44,4 +44,6 @@
     <string name="mark_complete">Mark complete</string>
     <string name="offer_marked_complete_success">Successfully completed offer!</string>
     <string name="offer_marked_complete_failure">Failed to mark this offer as complete</string>
+    <string name="in_progress_offers">In progress</string>
+    <string name="see_on_map">See on map</string>
 </resources>

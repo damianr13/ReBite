@@ -4,6 +4,8 @@
     <group android:id="@+id/gr_user_actions">
         <item android:id="@+id/it_history"
             android:title="@string/history"/>
+        <item android:id="@+id/it_in_progress_offers"
+            android:title="@string/in_progress_offers"/>
         <item android:id="@+id/it_new_restaurant"
             android:title="@string/add_restaurant_account"/>
     </group>

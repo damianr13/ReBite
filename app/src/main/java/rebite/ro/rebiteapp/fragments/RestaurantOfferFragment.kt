@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class RestaurantOfferFragment : Fragment(), RestaurantOfferAdapter.IOfferClickListener {
     private lateinit var mRestaurantOfferAdapter : RestaurantOfferAdapter
-    private var mRestaurantOfferList : List<RestaurantOffer>? = null
+    fun restaurantOffersList(): List<RestaurantOffer> = mRestaurantOfferAdapter.offersList
 
     @Inject lateinit var mFlavorSpecificActivityFactory: FlavorSpecificActivityFactory
 
@@ -35,11 +35,11 @@ class RestaurantOfferFragment : Fragment(), RestaurantOfferAdapter.IOfferClickLi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_restaurantoffer, container, false)
-        mRestaurantOfferList = arguments?.getParcelableArrayList<Parcelable>(OFFERS_KEY)
+        val restaurantOfferList = arguments?.getParcelableArrayList<Parcelable>(OFFERS_KEY)
                 ?.map { Parcels.unwrap(it) as RestaurantOffer}
 
         mRestaurantOfferAdapter = RestaurantOfferAdapter(context, this)
-        mRestaurantOfferAdapter.swapRestaurantOffers(mRestaurantOfferList)
+        mRestaurantOfferAdapter.swapRestaurantOffers(restaurantOfferList)
         val llm = LinearLayoutManager(context)
         view.rv_past_offers.apply {
             layoutManager = llm

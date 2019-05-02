@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +38,10 @@ public class RestaurantOfferAdapter extends
     public void swapRestaurantOffers(List<RestaurantOffer> offers) {
         mRestaurantOfferList = offers;
         notifyDataSetChanged();
+    }
+
+    public List<RestaurantOffer> getOffersList() {
+        return new ArrayList<>(mRestaurantOfferList);
     }
 
     @NonNull
@@ -118,7 +123,6 @@ public class RestaurantOfferAdapter extends
         public void onClick(View view) {
             mOfferClickListener.onOfferSelected(mAssociatedOfffer);
         }
-
 
     }
 }

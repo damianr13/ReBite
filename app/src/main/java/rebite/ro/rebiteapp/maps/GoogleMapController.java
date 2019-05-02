@@ -130,6 +130,21 @@ public class GoogleMapController implements LocationListener, Callback<Direction
                 .setCallback(this);
     }
 
+    public void showDirectionsThrough(List<LatLng> points, RouteListener routeListener) {
+        mRouteListener = routeListener;
+
+        com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(
+                mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+        List<com.google.maps.model.LatLng> convertedPoints = convertLatLngToMapModel(points);
+        DirectionsApi.newRequest(getGeoContext())
+                .mode(TravelMode.WALKING)
+                .origin(origin)
+                .waypoints(convertedPoints.subList(0, convertedPoints.size() - 1)
+                        .toArray(new com.google.maps.model.LatLng[0]))
+                .destination(convertedPoints.get(convertedPoints.size() - 1))
+                .setCallback(this);
+    }
+
     private static com.google.maps.model.LatLng convertLatLng(LatLng input) {
         return new com.google.maps.model.LatLng(input.latitude, input.longitude);
     }
@@ -138,9 +153,17 @@ public class GoogleMapController implements LocationListener, Callback<Direction
         return new LatLng(input.lat, input.lng);
     }
 
-    private static List<LatLng> convertLatLng(List<com.google.maps.model.LatLng> inputs) {
+    private static List<LatLng> convertLatLngFromMapModel(List<com.google.maps.model.LatLng> inputs) {
         ArrayList<LatLng> result = new ArrayList<>();
         for (com.google.maps.model.LatLng input : inputs) {
+            result.add(convertLatLng(input));
+        }
+        return result;
+    }
+
+    private static List<com.google.maps.model.LatLng> convertLatLngToMapModel(List<LatLng> inputs) {
+        ArrayList<com.google.maps.model.LatLng> result = new ArrayList<>();
+        for (LatLng input : inputs) {
             result.add(convertLatLng(input));
         }
         return result;
@@ -186,7 +209,7 @@ public class GoogleMapController implements LocationListener, Callback<Direction
             mRouteListener.onRouteRetrieved(new RouteInfo(result));
         }
 
-        List<LatLng> decodedPath = convertLatLng(result.routes[0].overviewPolyline.decodePath());
+        List<LatLng> decodedPath = convertLatLngFromMapModel(result.routes[0].overviewPolyline.decodePath());
         mActivity.runOnUiThread(() -> mGoogleMap.addPolyline(new PolylineOptions().addAll(decodedPath)));
     }
 
