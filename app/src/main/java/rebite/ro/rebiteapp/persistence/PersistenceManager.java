@@ -13,6 +13,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.maps.PendingResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -118,6 +120,23 @@ public class PersistenceManager {
             );
     }
 
+    public void retrieveSpecificOffer(String documentId, RestaurantOffersRetrieverCallbacks callbacks) {
+        FirebaseFirestore.getInstance()
+                .collection(OFFERS_COLLECTION)
+                .document(documentId)
+                .get()
+                .addOnCompleteListener(doc -> {
+                    DocumentSnapshot documentSnapshot = doc.getResult();
+                    if (documentSnapshot == null) {
+                        return ;
+                    }
+
+                    RestaurantOffer targetOffer = documentSnapshot.toObject(RestaurantOffer.class);
+                    syncAssignedUserFor(documentSnapshot, targetOffer, () ->
+                            callbacks.onRestaurantOffersRetrieved(Collections.singletonList(targetOffer)));
+                });
+    }
+
     public void retrieveAllAvailableOffers(final RestaurantOffersRetrieverCallbacks callbacks) {
         Query q = FirebaseFirestore.getInstance()
                 .collection(OFFERS_COLLECTION)
@@ -166,7 +185,8 @@ public class PersistenceManager {
         cacheValid = true;
     }
 
-    private void syncAssignedUserFor(DocumentSnapshot offerDocument, RestaurantOffer offerObject) {
+    private void syncAssignedUserFor(DocumentSnapshot offerDocument, RestaurantOffer offerObject,
+                                     Runnable callback) {
         DocumentReference userReference =
                 offerDocument.getDocumentReference(RestaurantOffer.ASSIGNED_USER_FIELD);
         if (userReference == null) {
@@ -183,7 +203,12 @@ public class PersistenceManager {
                     }
 
                     offerObject.assignedUser = task.getResult().toObject(UserInfo.class);
+                    callback.run();
                 });
+    }
+
+    private void syncAssignedUserFor(DocumentSnapshot offerDocument, RestaurantOffer offerObject) {
+        syncAssignedUserFor(offerDocument, offerObject, () -> {});
     }
 
     private boolean verifyTaskFailed(Task task) {

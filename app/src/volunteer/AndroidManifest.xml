@@ -5,7 +5,17 @@
     <application
         android:name=".dagger.VolunteerApplication"
         android:theme="@style/AppTheme">
-        <activity android:name=".MultipleOffersRouteMapActivity"></activity>
+        <service
+            android:name=".notifications.OffersNotificationsService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+
+        </service>
+
+        <activity android:name=".MultipleOffersRouteMapActivity" />
         <activity android:name=".OfferDetailsActivity" />
         <activity android:name=".MapLocationSelectorActivity" />
         <activity android:name=".OfferCreatorActivity" />
@@ -13,7 +23,8 @@
 
         <service
             android:name=".services.FetchAddressIntentService"
-            android:exported="false" />
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

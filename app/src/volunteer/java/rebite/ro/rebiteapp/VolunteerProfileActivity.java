@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -52,6 +53,20 @@ public class VolunteerProfileActivity extends AppCompatActivity
         PersistenceManager.getInstance().retrieveAllAvailableOffers(this);
         mOffersFragment = (RestaurantOfferFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fr_offers);
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "getInstanceId failed", task.getException());
+                        return;
+                    }
+
+                    // Get new Instance ID token
+                    String token = task.getResult().getToken();
+
+                    // Log and toast
+                    Log.d(TAG, token);
+                    Toast.makeText(VolunteerProfileActivity.this, token, Toast.LENGTH_SHORT).show();
+                });
     }
 
     @Override

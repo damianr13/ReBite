@@ -62,13 +62,17 @@ dependencies {
     implementation "com.android.support:support-v4:$android_support_version"
 
     // login
-    implementation 'com.google.firebase:firebase-auth:16.2.1'
+    implementation 'com.google.firebase:firebase-auth:17.0.0'
     implementation 'com.facebook.android:facebook-android-sdk:4.37.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
-    implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.google.firebase:firebase-core:16.0.9'
+
+    // Notifications
+    implementation 'com.google.firebase:firebase-messaging:18.0.0'
+    implementation 'android.arch.work:work-runtime:1.0.1'
 
     // Storage
-    implementation 'com.google.firebase:firebase-firestore:18.2.0'
+    implementation 'com.google.firebase:firebase-firestore:19.0.0'
 
     // Pictures
     implementation 'com.squareup.picasso:picasso:2.71828'

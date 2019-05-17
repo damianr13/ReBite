@@ -22,19 +22,35 @@ import rebite.ro.rebiteapp.utils.RestaurantOffersManager
 import rebite.ro.rebiteapp.utils.TimeUtils
 
 class OfferDetailsActivity : AppCompatActivity(), RouteListener {
-    private lateinit var mRestaurantOffer: RestaurantOffer
+    private var mRestaurantOffer: RestaurantOffer? = null
+    private var mMap: GoogleMap? = null
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_offer_details)
 
-        mRestaurantOffer = Parcels.unwrap(intent.getParcelableExtra(OFFER_KEY))
-
-        initViews()
+        if (intent.hasExtra(OFFER_KEY)) {
+            mRestaurantOffer = Parcels.unwrap(intent.getParcelableExtra(OFFER_KEY))
+            initViews()
+            drawOnMap()
+        }
+        else if (intent.hasExtra(OFFER_ID_KEY)) {
+            PersistenceManager.getInstance().retrieveSpecificOffer(intent.getStringExtra(OFFER_ID_KEY)) {
+                if (it.isEmpty()) {
+                    return@retrieveSpecificOffer
+                }
+                mRestaurantOffer = it[0]
+                initViews()
+                drawOnMap()
+            }
+        }
 
         (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment)
-                .getMapAsync {drawOnMap(it)}
+                .getMapAsync {
+                    setMap(it)
+                    drawOnMap()
+                }
     }
 
     override fun onRouteRetrieved(routeInfo: RouteInfo) {
@@ -42,60 +58,70 @@ class OfferDetailsActivity : AppCompatActivity(), RouteListener {
                 TimeUtils.formatTimestampAfter(routeInfo.duration.inSeconds)) }
     }
 
+    private fun setMap(map: GoogleMap) {
+        mMap = map
+    }
+
     @SuppressLint("MissingPermission")
-    private fun drawOnMap(map: GoogleMap) {
-        if (!PermissionHandler.hasAccessToLocation(this)) {
-            PermissionHandler.askForAccessToLocation(this)
-            return
+    private fun drawOnMap() {
+        mMap?.let { map ->
+            mRestaurantOffer?.let {offer ->
+                if (!PermissionHandler.hasAccessToLocation(this)) {
+                    PermissionHandler.askForAccessToLocation(this)
+                    return@drawOnMap
+                }
+
+                map.isMyLocationEnabled = true
+                val mapController = GoogleMapController(this, map)
+                mapController.startListeningForLocation()
+
+                val restaurantLatLng = RestaurantOffersManager.getLatLongForOffer(offer)
+                map.addMarker(MarkerOptions().position(restaurantLatLng))
+                mapController.showDirectionsTo(restaurantLatLng, this)
+            }
         }
-
-        map.isMyLocationEnabled = true
-        val mapController = GoogleMapController(this, map)
-        mapController.startListeningForLocation()
-
-        val restaurantLatLng = RestaurantOffersManager.getLatLongForOffer(mRestaurantOffer)
-        map.addMarker(MarkerOptions().position(restaurantLatLng))
-        mapController.showDirectionsTo(restaurantLatLng, this)
     }
 
     private fun initViews() {
-        Picasso.get().load(mRestaurantOffer.restaurantInfo.image).into(iv_logo)
-        tv_name.text = mRestaurantOffer.restaurantInfo.name
-        tv_restaurant_description.text = mRestaurantOffer.restaurantInfo.name
-        tv_offer_description.text = mRestaurantOffer.description
-        tv_number_of_portions_value.text = mRestaurantOffer.quantity.toString()
-        tv_pick_up_time.text = getString(R.string.pickup_time_value,
-                TimeUtils.format(mRestaurantOffer.pickUpTimestamp))
+        mRestaurantOffer?.let {
+            Picasso.get().load(it.restaurantInfo.image).into(iv_logo)
+            tv_name.text = it.restaurantInfo.name
+            tv_restaurant_description.text = it.restaurantInfo.name
+            tv_offer_description.text = it.description
+            tv_number_of_portions_value.text = it.quantity.toString()
+            tv_pick_up_time.text = getString(R.string.pickup_time_value,
+                    TimeUtils.format(it.pickUpTimestamp))
 
-        btn_take_offer.visibility =
-                if(mRestaurantOffer.state == RestaurantOffer.OfferState.AVAILABLE)
-                    View.VISIBLE else
-                    View.GONE
+            btn_take_offer.visibility =
+                    if(it.state == RestaurantOffer.OfferState.AVAILABLE)
+                        View.VISIBLE else
+                        View.GONE
 
-        val userInChargeOfOffer = mRestaurantOffer.state == RestaurantOffer.OfferState.IN_PROGRESS &&
-                mRestaurantOffer.assignedUser.email == GeneralProfileInfoProvider.getInstance().email
-        btn_mark_complete.visibility = if (userInChargeOfOffer) View.VISIBLE else View.GONE
+            val userInChargeOfOffer = it.state == RestaurantOffer.OfferState.IN_PROGRESS &&
+                    it.assignedUser.email == GeneralProfileInfoProvider.getInstance().email
+            btn_mark_complete.visibility = if (userInChargeOfOffer) View.VISIBLE else View.GONE
 
-        btn_take_offer.setOnClickListener {
-            PersistenceManager.getInstance().assignOfferToCurrentUser(mRestaurantOffer) {
-                val message = if (it) getString(R.string.offer_assgined_success) else
-                    getString(R.string.offer_assigned_failure)
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                PersistenceManager.getInstance().invalidateCache()
-                runOnUiThread {
-                    finish()
+            btn_take_offer.setOnClickListener {view ->
+                PersistenceManager.getInstance().assignOfferToCurrentUser(it) {isAssignee ->
+                    val message = if (isAssignee) getString(R.string.offer_assgined_success) else
+                        getString(R.string.offer_assigned_failure)
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    PersistenceManager.getInstance().invalidateCache()
+                    runOnUiThread {
+                        finish()
+                    }
                 }
             }
-        }
 
-        btn_mark_complete.setOnClickListener {
-            PersistenceManager.getInstance().markOfferComplete(mRestaurantOffer) {
-                val message = if (it) getString(R.string.offer_marked_complete_success) else
-                    getString(R.string.offer_marked_complete_failure)
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                PersistenceManager.getInstance().invalidateCache()
-                runOnUiThread {
-                    finish()
+            btn_mark_complete.setOnClickListener {view ->
+                PersistenceManager.getInstance().markOfferComplete(it) {isAssignee ->
+                    val message = if (isAssignee) getString(R.string.offer_marked_complete_success) else
+                        getString(R.string.offer_marked_complete_failure)
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    PersistenceManager.getInstance().invalidateCache()
+                    runOnUiThread {
+                        finish()
+                    }
                 }
             }
         }
@@ -103,5 +129,6 @@ class OfferDetailsActivity : AppCompatActivity(), RouteListener {
 
     companion object {
         const val OFFER_KEY = "offer"
+        const val OFFER_ID_KEY ="offerPath"
     }
 }
