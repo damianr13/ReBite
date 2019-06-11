@@ -37,8 +37,7 @@
     <string name="nav_drawer_open">Open</string>
     <string name="nav_drawer_close">Close</string>
     <string name="take_offer">Take offer</string>
-    <string name="eta">Estimated time of arrival: %1$s</string>
-    <string name="pickup_time_value">Pick up time: %1$s</string>
+    <string name="eta">Estimated time of arrival</string>
     <string name="offer_assgined_success">Offer asigned to you!</string>
     <string name="offer_assigned_failure">Failed to assign this offer!</string>
     <string name="mark_complete">Mark complete</string>
@@ -46,4 +45,8 @@
     <string name="offer_marked_complete_failure">Failed to mark this offer as complete</string>
     <string name="in_progress_offers">In progress</string>
     <string name="see_on_map">See on map</string>
+    <string name="details">Details</string>
+    <string name="bike">Bike</string>
+    <string name="drive">Drive</string>
+    <string name="walk">Walk</string>
 </resources>

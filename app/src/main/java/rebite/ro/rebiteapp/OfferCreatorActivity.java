@@ -18,7 +18,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rebite.ro.rebiteapp.offers.RestaurantOffer;
-import rebite.ro.rebiteapp.persistence.PersistenceManager;
 import rebite.ro.rebiteapp.state.StateManager;
 
 public class OfferCreatorActivity extends AppCompatActivity {

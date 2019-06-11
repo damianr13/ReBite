@@ -8,7 +8,7 @@ import android.widget.Toast
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.MarkerOptions
-import com.squareup.picasso.Picasso
+import com.google.maps.model.TravelMode
 import kotlinx.android.synthetic.volunteer.activity_offer_details.*
 import org.parceler.Parcels
 import rebite.ro.rebiteapp.maps.GoogleMapController
@@ -24,6 +24,7 @@ import rebite.ro.rebiteapp.utils.TimeUtils
 class OfferDetailsActivity : AppCompatActivity(), RouteListener {
     private var mRestaurantOffer: RestaurantOffer? = null
     private var mMap: GoogleMap? = null
+    private var mMapController: GoogleMapController? = null
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,8 +55,7 @@ class OfferDetailsActivity : AppCompatActivity(), RouteListener {
     }
 
     override fun onRouteRetrieved(routeInfo: RouteInfo) {
-        runOnUiThread { tv_eta.text = getString(R.string.eta,
-                TimeUtils.formatTimestampAfter(routeInfo.duration.inSeconds)) }
+        runOnUiThread { tv_eta.text = TimeUtils.formatTimestampAfter(routeInfo.duration.inSeconds) }
     }
 
     private fun setMap(map: GoogleMap) {
@@ -72,59 +72,90 @@ class OfferDetailsActivity : AppCompatActivity(), RouteListener {
                 }
 
                 map.isMyLocationEnabled = true
-                val mapController = GoogleMapController(this, map)
-                mapController.startListeningForLocation()
+                GoogleMapController(this, map).let {
+                    mMapController = it
+                    it.startListeningForLocation()
 
-                val restaurantLatLng = RestaurantOffersManager.getLatLongForOffer(offer)
-                map.addMarker(MarkerOptions().position(restaurantLatLng))
-                mapController.showDirectionsTo(restaurantLatLng, this)
+                    val restaurantLatLng = RestaurantOffersManager.getLatLongForOffer(offer)
+                    map.addMarker(MarkerOptions().position(restaurantLatLng))
+
+                    it.showDirectionsTo(restaurantLatLng, this)
+                }
             }
         }
     }
 
     private fun initViews() {
         mRestaurantOffer?.let {
-            Picasso.get().load(it.restaurantInfo.image).into(iv_logo)
             tv_name.text = it.restaurantInfo.name
-            tv_restaurant_description.text = it.restaurantInfo.name
             tv_offer_description.text = it.description
-            tv_number_of_portions_value.text = it.quantity.toString()
-            tv_pick_up_time.text = getString(R.string.pickup_time_value,
-                    TimeUtils.format(it.pickUpTimestamp))
+            tv_number_of_portions.text = it.quantity.toString()
+            tv_pick_up_time.text = TimeUtils.format(it.pickUpTimestamp)
 
-            btn_take_offer.visibility =
-                    if(it.state == RestaurantOffer.OfferState.AVAILABLE)
-                        View.VISIBLE else
-                        View.GONE
+            setTransitModeSelectionListener()
+            handleActionButtonsVisibility(it)
+            setInProgressMarkerListener(it)
+            setCompleteMarkerListener(it)
+        }
+    }
+    
+    private fun handleActionButtonsVisibility(offer: RestaurantOffer) {
+        btn_take_offer.visibility =
+                if(offer.state == RestaurantOffer.OfferState.AVAILABLE)
+                    View.VISIBLE else
+                    View.GONE
 
-            val userInChargeOfOffer = it.state == RestaurantOffer.OfferState.IN_PROGRESS &&
-                    it.assignedUser.email == GeneralProfileInfoProvider.getInstance().email
-            btn_mark_complete.visibility = if (userInChargeOfOffer) View.VISIBLE else View.GONE
-
-            btn_take_offer.setOnClickListener {view ->
-                PersistenceManager.getInstance().assignOfferToCurrentUser(it) {isAssignee ->
-                    val message = if (isAssignee) getString(R.string.offer_assgined_success) else
-                        getString(R.string.offer_assigned_failure)
-                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                    PersistenceManager.getInstance().invalidateCache()
-                    runOnUiThread {
-                        finish()
-                    }
-                }
-            }
-
-            btn_mark_complete.setOnClickListener {view ->
-                PersistenceManager.getInstance().markOfferComplete(it) {isAssignee ->
-                    val message = if (isAssignee) getString(R.string.offer_marked_complete_success) else
-                        getString(R.string.offer_marked_complete_failure)
-                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                    PersistenceManager.getInstance().invalidateCache()
-                    runOnUiThread {
-                        finish()
-                    }
+        val userInChargeOfOffer = offer.state == RestaurantOffer.OfferState.IN_PROGRESS &&
+                offer.assignedUser.email == GeneralProfileInfoProvider.getInstance().email
+        btn_mark_complete.visibility = if (userInChargeOfOffer) View.VISIBLE else View.GONE
+        
+    }
+    
+    private fun setInProgressMarkerListener(offer: RestaurantOffer) {
+        btn_take_offer.setOnClickListener {
+            PersistenceManager.getInstance().assignOfferToCurrentUser(offer) {isAssignee ->
+                val message = if (isAssignee) getString(R.string.offer_assgined_success) else
+                    getString(R.string.offer_assigned_failure)
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                PersistenceManager.getInstance().invalidateCache()
+                runOnUiThread {
+                    finish()
                 }
             }
         }
+    }
+    
+    private fun setCompleteMarkerListener(offer: RestaurantOffer) {
+        btn_mark_complete.setOnClickListener {
+            PersistenceManager.getInstance().markOfferComplete(offer) {isAssignee ->
+                val message = if (isAssignee) getString(R.string.offer_marked_complete_success)
+                        else getString(R.string.offer_marked_complete_failure)
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                PersistenceManager.getInstance().invalidateCache()
+                runOnUiThread {
+                    finish()
+                }
+            }
+        }
+    }
+    
+    private fun setTransitModeSelectionListener() {
+        rg_transit_mode.setOnCheckedChangeListener { _, i ->
+            run {
+                when (i) {
+                    R.id.rb_transit_drive -> triggerDriveMode()
+                    R.id.rb_transit_walk -> triggerWalkMode()
+                }
+            }
+        }
+    }
+
+    private fun triggerWalkMode() {
+        mMapController?.let { it.setTravelModeForDirections(TravelMode.WALKING) }
+    }
+
+    private fun triggerDriveMode() {
+        mMapController?.let { it.setTravelModeForDirections(TravelMode.DRIVING) }
     }
 
     companion object {

@@ -72,7 +72,7 @@ class OffersNotificationsService : FirebaseMessagingService() {
         val channelId = getString(R.string.offers_notification_channel_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.icon_food)
+                .setSmallIcon(R.drawable.ic_food)
                 .setContentTitle(getString(R.string.offer_notification_title))
                 .setContentText(messageBody)
                 .setAutoCancel(true)

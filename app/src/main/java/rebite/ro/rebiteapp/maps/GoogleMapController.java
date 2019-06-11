@@ -13,6 +13,8 @@ import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApi;
 import com.google.maps.GeoApiContext;
@@ -35,7 +37,10 @@ public class GoogleMapController implements LocationListener, Callback<Direction
     private GoogleMap mGoogleMap;
     private Activity mActivity;
 
+    private Polyline mCurrentRoutePolyline;
+
     private Location mLastKnownLocation;
+    private LatLng mLastKnownDestination;
 
     private RouteListener mRouteListener;
 
@@ -119,16 +124,26 @@ public class GoogleMapController implements LocationListener, Callback<Direction
     }
 
     public void showDirectionsTo(LatLng destination, RouteListener routeListener) {
+        showDirectionsTo(destination, TravelMode.WALKING, routeListener);
+    }
+
+    private void showDirectionsTo(LatLng destination, TravelMode travelMode, RouteListener routeListener) {
         mRouteListener = routeListener;
+        mLastKnownDestination = destination;
 
         com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(
                 mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         DirectionsApi.newRequest(getGeoContext())
-                .mode(TravelMode.WALKING)
+                .mode(travelMode)
                 .origin(origin)
                 .destination(convertLatLng(destination))
                 .setCallback(this);
     }
+
+    public void setTravelModeForDirections(TravelMode travelMode) {
+        showDirectionsTo(mLastKnownDestination, travelMode, mRouteListener);
+    }
+
 
     public void showDirectionsThrough(List<LatLng> points, RouteListener routeListener) {
         mRouteListener = routeListener;
@@ -206,11 +221,23 @@ public class GoogleMapController implements LocationListener, Callback<Direction
     @Override
     public void onResult(DirectionsResult result) {
         if (mRouteListener != null) {
-            mRouteListener.onRouteRetrieved(new RouteInfo(result));
+            RouteInfo resultRouteInfo = new RouteInfo(result);
+            mRouteListener.onRouteRetrieved(resultRouteInfo);
         }
 
         List<LatLng> decodedPath = convertLatLngFromMapModel(result.routes[0].overviewPolyline.decodePath());
-        mActivity.runOnUiThread(() -> mGoogleMap.addPolyline(new PolylineOptions().addAll(decodedPath)));
+
+        mActivity.runOnUiThread(() -> {
+            if (mCurrentRoutePolyline != null) {
+                mCurrentRoutePolyline.remove();
+            }
+            mCurrentRoutePolyline = mGoogleMap.addPolyline(new PolylineOptions().addAll(decodedPath));
+            LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+            for (LatLng point : decodedPath) {
+                boundsBuilder.include(point);
+            }
+            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 100));
+        });
     }
 
     @Override
