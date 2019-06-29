@@ -49,4 +49,11 @@
     <string name="bike">Bike</string>
     <string name="drive">Drive</string>
     <string name="walk">Walk</string>
+    <string name="rebite_copyright">ReBite App, Bucharest</string>
+    <string name="rebite_logo">ReBite Logo</string>
+
+    <string name="pick_up_by_time_arg">Pickup by %1$S</string>
+    <string name="offered_number_potions_arg">Offered number of portions: %1$d</string>
+    <string name="watch_icon">Watch icon</string>
+    <string name="food_icon">Food icon</string>
 </resources>

@@ -1,7 +1,6 @@
 package rebite.ro.rebiteapp.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -89,9 +88,6 @@ public class RestaurantOfferAdapter extends
         @BindView(R.id.iv_logo)
         ImageView logoImageView;
 
-        @BindView(R.id.tv_status)
-        TextView statusTextView;
-
         private RestaurantOffer mAssociatedOfffer;
 
         RestaurantOfferViewHolder(View itemView) {
@@ -108,13 +104,9 @@ public class RestaurantOfferAdapter extends
             quantityTextView.setText(String.valueOf(offer.quantity));
             Picasso.get().load(offer.restaurantInfo.image).into(logoImageView);
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM hh:mm", Locale.getDefault());
             Calendar pickUpTimeCalendar = Calendar.getInstance();
             pickUpTimeCalendar.setTimeInMillis(offer.pickUpTimestamp);
-            if (pickUpTimeCalendar.before(Calendar.getInstance())) {
-                statusTextView.setText(R.string.expired);
-                statusTextView.setBackgroundColor(Color.RED);
-            }
 
             pickUpTimeTextView.setText(sdf.format(pickUpTimeCalendar.getTime()));
         }

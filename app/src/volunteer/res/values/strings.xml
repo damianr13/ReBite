@@ -1,6 +1,6 @@
 <resources>
     <string name="invalid_lat_long_used">Invalid location provided</string>
-
+    <string name="app_name">ReBite Volunteer</string>
     <string name="offers_notification_channel_id" translatable="false">offers_notification_channel</string>
     <string name="offer_notification_title">New offer received</string>
 </resources>
