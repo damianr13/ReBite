@@ -21,6 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import rebite.ro.rebiteapp.R;
 import rebite.ro.rebiteapp.offers.RestaurantOffer;
+import rebite.ro.rebiteapp.utils.TimeUtils;
 
 public class RestaurantOfferAdapter extends
         RecyclerView.Adapter<RestaurantOfferAdapter.RestaurantOfferViewHolder>{
@@ -103,12 +104,7 @@ public class RestaurantOfferAdapter extends
             nameTextView.setText(offer.restaurantInfo.name);
             quantityTextView.setText(String.valueOf(offer.quantity));
             Picasso.get().load(offer.restaurantInfo.image).into(logoImageView);
-
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM hh:mm", Locale.getDefault());
-            Calendar pickUpTimeCalendar = Calendar.getInstance();
-            pickUpTimeCalendar.setTimeInMillis(offer.pickUpTimestamp);
-
-            pickUpTimeTextView.setText(sdf.format(pickUpTimeCalendar.getTime()));
+            pickUpTimeTextView.setText(TimeUtils.format(offer.pickUpTimestamp));
         }
 
         @Override

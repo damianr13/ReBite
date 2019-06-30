@@ -2,9 +2,13 @@ package rebite.ro.rebiteapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,19 +25,23 @@ import butterknife.OnClick;
 import rebite.ro.rebiteapp.adapters.OffersListPageAdapter;
 import rebite.ro.rebiteapp.offers.RestaurantOffer;
 import rebite.ro.rebiteapp.persistence.PersistenceManager;
+import rebite.ro.rebiteapp.persistence.UsersManager;
 import rebite.ro.rebiteapp.persistence.callbacks.RestaurantOffersRetrieverCallbacks;
 import rebite.ro.rebiteapp.state.StateManager;
 import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
 import rebite.ro.rebiteapp.utils.UIUtils;
 
 public class RestaurantProfileActivity extends AppCompatActivity
-        implements RestaurantOffersRetrieverCallbacks{
+        implements RestaurantOffersRetrieverCallbacks, NavigationView.OnNavigationItemSelectedListener{
+
+    private static final String TAG = RestaurantProfileActivity.class.getName();
 
     private static final int CREATE_OFFER_REQUEST = 100;
 
     @BindView(R.id.iv_profile_picture) ImageView mLogoImageView;
     @BindView(R.id.tv_display_name) TextView mNameTextView;
     @BindView(R.id.vp_offers_tabs) ViewPager mOffersTabsViewPager;
+    @BindView(R.id.nv_menu) NavigationView mNavigationView;
 
     private OffersListPageAdapter mOffersListPageAdapter;
     private RestaurantInfo mCurrentRestaurantInfo;
@@ -62,6 +70,7 @@ public class RestaurantProfileActivity extends AppCompatActivity
         mNameTextView.setText(mCurrentRestaurantInfo.name);
         mOffersTabsViewPager.setAdapter(mOffersListPageAdapter);
 
+        mNavigationView.setNavigationItemSelectedListener(this);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -97,5 +106,25 @@ public class RestaurantProfileActivity extends AppCompatActivity
             PersistenceManager.getInstance().persistOfferToGlobalDatabase(this, offer);
             pullOffersFromServer();
         }
+    }
+
+    public void onLogOut() {
+        UsersManager.getInstance().logOutCurrentUser();
+
+        Intent homeIntent = new Intent(this, MainActivity.class);
+        startActivity(homeIntent);
+        finish();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.it_log_out:
+                onLogOut();
+                return true;
+        }
+
+        Log.w(TAG, "Unknown menu item: " + menuItem.getTitle().toString());
+        return false;
     }
 }

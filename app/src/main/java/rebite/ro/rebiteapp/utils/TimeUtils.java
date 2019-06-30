@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeUtils {
 
-    private static final String DATE_FORMAT = "dd/MM HH:mm";
+    private static final String DATE_FORMAT = "dd.MM HH:mm";
 
     public static String format (long timestamp) {
         DateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
