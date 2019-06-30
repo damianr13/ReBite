@@ -1,7 +1,6 @@
 package rebite.ro.rebiteapp.persistence;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,11 +9,13 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import rebite.ro.rebiteapp.MainActivity;
 import rebite.ro.rebiteapp.R;
 import rebite.ro.rebiteapp.state.StateManager;
 import rebite.ro.rebiteapp.users.GeneralProfileInfoProvider;
+import rebite.ro.rebiteapp.users.RestaurantUserCreatorRequest;
 
 public class UsersManager {
     public static final String TAG = UsersManager.class.getName();
@@ -53,6 +54,11 @@ public class UsersManager {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    public Task<DocumentReference> postRequestForNewRestaurantAccount(final Context context,
+                                                                      RestaurantUserCreatorRequest req) {
+        return FirebaseFirestore.getInstance().collection("accountRequests").add(req);
     }
 
     private FirebaseAuth generateFirebaseInstance(Context context) {

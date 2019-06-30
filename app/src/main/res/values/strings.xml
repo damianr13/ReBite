@@ -8,8 +8,9 @@
     <string name="add_new_offer">Add new offer</string>
     <string name="password">Password</string>
     <string name="username">Username</string>
+    <string name="display_name">Display Name</string>
     <string name="create">Create</string>
-    <string name="confirm_password">Confirm password</string>
+    <string name="description">Description</string>
     <string name="password_mismatch">Password and confirmation did not match</string>
     <string name="login">Log In</string>
     <string name="pickup_time">Pickup time</string>
@@ -56,4 +57,5 @@
     <string name="offered_number_potions_arg">Offered number of portions: %1$d</string>
     <string name="watch_icon">Watch icon</string>
     <string name="food_icon">Food icon</string>
+    <string name="image_url">Image URL</string>
 </resources>

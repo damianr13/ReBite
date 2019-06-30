@@ -5,9 +5,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -17,6 +21,7 @@ import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,10 +29,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rebite.ro.rebiteapp.persistence.PersistenceManager;
 import rebite.ro.rebiteapp.persistence.UsersManager;
-import rebite.ro.rebiteapp.users.UserInfo;
-import rebite.ro.rebiteapp.users.restaurants.RestaurantInfo;
+import rebite.ro.rebiteapp.users.RestaurantUserCreatorRequest;
 import rebite.ro.rebiteapp.users.restaurants.SimpleLocation;
 
 import static rebite.ro.rebiteapp.MapLocationSelectorActivity.ADDRESS_KEY;
@@ -41,9 +44,11 @@ public class RestaurantProfileCreatorActivity extends AppCompatActivity {
     private static final String TAG = RestaurantProfileCreatorActivity.class.getName();
 
     @BindView(R.id.et_email) EditText mEmailEditText;
-    @BindView(R.id.et_password) EditText mPasswordEditText;
-    @BindView(R.id.et_confirm_password) EditText mConfirmPasswordEditText;
+    @BindView(R.id.et_display_name) EditText mDisplayNameEditText;
+    @BindView(R.id.et_description) EditText mDescriptionEditText;
     @BindView(R.id.et_place_autocomplete) EditText mPlaceAutocomplete;
+    @BindView(R.id.et_image_url) EditText mImageURLEditText;
+    @BindView(R.id.iv_image) ImageView mLoadedImageView;
 
     private Location mSelectedLocation;
 
@@ -55,50 +60,51 @@ public class RestaurantProfileCreatorActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         // Initialize Places.
         Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+
+        mImageURLEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String value = editable.toString();
+                if (!URLUtil.isValidUrl(value)) {
+                    return ;
+                }
+                Picasso.get().load(value).into(mLoadedImageView);
+            }
+        });
     }
 
     @OnClick(R.id.btn_create)
     public void createRestaurantProfile(View view) {
-        String username = mEmailEditText.getText().toString();
-        String password = mPasswordEditText.getText().toString();
-        String passwordConfirmation = mConfirmPasswordEditText.getText().toString();
-
-        if (!password.equals(passwordConfirmation)) {
-            Toast.makeText(this, R.string.password_mismatch, Toast.LENGTH_SHORT).show();
-            return ;
-        }
-
         if (mSelectedLocation == null) {
             Toast.makeText(this, R.string.select_location_restaurant, Toast.LENGTH_SHORT)
                     .show();
             return ;
         }
+        RestaurantUserCreatorRequest request = new RestaurantUserCreatorRequest();
+        request.email = mEmailEditText.getText().toString();
+        request.display_name = mDisplayNameEditText.getText().toString();
+        request.description = mDescriptionEditText.getText().toString();
+        request.image = mImageURLEditText.getText().toString();
+        request.location = new SimpleLocation(mSelectedLocation);
+        request.address = mPlaceAutocomplete.getText().toString();
 
-        UsersManager.getInstance().createNewUser(this, username, password)
+        UsersManager.getInstance().postRequestForNewRestaurantAccount(this, request)
             .addOnCompleteListener((t) -> {
                     if (!t.isSuccessful() || t.getResult() == null) {
                         return ;
                     }
-                    String createdUserId = t.getResult().getUser().getUid();
-                    RestaurantInfo restaurantInfo = readInfoFromFields();
-                    UserInfo userInfo = new UserInfo(mEmailEditText.getText().toString(),
-                            restaurantInfo);
-                    PersistenceManager.getInstance().persistUserWithInfo(
-                        RestaurantProfileCreatorActivity.this, createdUserId, userInfo);
+
+                    Toast.makeText(RestaurantProfileCreatorActivity.this,
+                            "Request sent successfully", Toast.LENGTH_SHORT).show();
                 }
             );
         onBackPressed();
-    }
-
-    private RestaurantInfo readInfoFromFields() {
-        RestaurantInfo result = new RestaurantInfo();
-        result.address = mPlaceAutocomplete.getText().toString();
-        result.name = "Dummy name";
-        result.description = "Dummy Description";
-        result.image = "https://picsum.photos/id/114/300/300";
-        result.location = new SimpleLocation(mSelectedLocation);
-
-        return result;
     }
 
     @OnClick(R.id.et_place_autocomplete)
