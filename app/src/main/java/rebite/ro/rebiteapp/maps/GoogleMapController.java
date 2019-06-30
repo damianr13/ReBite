@@ -14,6 +14,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApi;
@@ -23,6 +24,7 @@ import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.TravelMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -56,12 +58,12 @@ public class GoogleMapController implements LocationListener, Callback<Direction
         if (!PermissionHandler.hasAccessToLocation(mActivity)) {
             PermissionHandler.askForAccessToLocation(mActivity);
             startListeningForLocation();
-            return ;
+            return;
         }
 
         if (locationManager == null) {
             Log.w(TAG, "Unable to get access to a LocationManager");
-            return ;
+            return;
         }
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -148,8 +150,13 @@ public class GoogleMapController implements LocationListener, Callback<Direction
     public void showDirectionsThrough(List<LatLng> points, RouteListener routeListener) {
         mRouteListener = routeListener;
 
+        for (LatLng wayPoint: points) {
+            mGoogleMap.addMarker(new MarkerOptions().position(wayPoint));
+        }
+
         com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(
                 mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+        points = sortByDistance(points);
         List<com.google.maps.model.LatLng> convertedPoints = convertLatLngToMapModel(points);
         DirectionsApi.newRequest(getGeoContext())
                 .mode(TravelMode.WALKING)
@@ -158,6 +165,31 @@ public class GoogleMapController implements LocationListener, Callback<Direction
                         .toArray(new com.google.maps.model.LatLng[0]))
                 .destination(convertedPoints.get(convertedPoints.size() - 1))
                 .setCallback(this);
+    }
+
+    private List<LatLng> sortByDistance(List<LatLng> points) {
+        List<LatLng> copy = new ArrayList<>(points);
+        Collections.sort(copy, this::compare);
+
+        return copy;
+    }
+
+    private int compare(LatLng latLng1, LatLng latLng2) {
+        if (mLastKnownLocation == null) {
+            Log.w(TAG, "Tried to sort point by distance to current location, but location is unknown!");
+            return 0;
+        }
+
+        return (int) (mLastKnownLocation.distanceTo(convertLatLngToLocation(latLng1)) -
+                mLastKnownLocation.distanceTo(convertLatLngToLocation(latLng2)));
+    }
+
+    private Location convertLatLngToLocation(LatLng source) {
+        Location result = new Location(LocationManager.GPS_PROVIDER);
+        result.setLatitude(source.latitude);
+        result.setLongitude(source.longitude);
+
+        return result;
     }
 
     private static com.google.maps.model.LatLng convertLatLng(LatLng input) {

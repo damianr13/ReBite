@@ -41,10 +41,11 @@
             style="@style/OfferDescriptionOverImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
             app:layout_constraintTop_toBottomOf="@+id/tv_name"
             app:layout_constraintStart_toStartOf="@+id/tv_name"
             app:layout_constraintEnd_toEndOf="@+id/tv_name"
-            tools:text="Str. Vasile Parvan"/>
+            tools:text="Str. Vasile Parvan 54, Bucuresti, Romania, Undeva in Balcani"/>
 
         <ImageView
             android:id="@+id/iv_time"

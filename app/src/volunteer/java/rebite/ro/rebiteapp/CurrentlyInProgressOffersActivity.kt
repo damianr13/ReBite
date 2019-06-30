@@ -4,7 +4,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
-import kotlinx.android.synthetic.main.activity_currently_in_progress_offers.*
+import kotlinx.android.synthetic.volunteer.activity_currently_in_progress_offers.*
 import org.parceler.Parcels
 import rebite.ro.rebiteapp.fragments.RestaurantOfferFragment
 import rebite.ro.rebiteapp.persistence.PersistenceManager
